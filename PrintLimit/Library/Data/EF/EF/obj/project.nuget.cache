@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "H5+EBp0d2XglGULGId3xaUmL/DPY8dkzRh7MJvWY+37KkkWeJFx4TlKg5NpM7FyRXtYUtXSmCHbvqQ8lJIMC4A==",
+  "success": true,
+  "projectFilePath": "D:\\Repo\\Github\\PrintLimitWinform\\PrintLimit\\Library\\Data\\EF\\EF\\EF.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Vinaai\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\Vinaai\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

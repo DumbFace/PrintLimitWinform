@@ -1,0 +1,10 @@
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\bin\Debug\netstandard2.1\EF.deps.json
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\bin\Debug\netstandard2.1\EF.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\bin\Debug\netstandard2.1\EF.pdb
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\obj\Debug\netstandard2.1\EF.csproj.AssemblyReference.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\obj\Debug\netstandard2.1\EF.GeneratedMSBuildEditorConfig.editorconfig
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\obj\Debug\netstandard2.1\EF.AssemblyInfoInputs.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\obj\Debug\netstandard2.1\EF.AssemblyInfo.cs
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\obj\Debug\netstandard2.1\EF.csproj.CoreCompileInputs.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\obj\Debug\netstandard2.1\EF.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\Library\Data\EF\obj\Debug\netstandard2.1\EF.pdb
