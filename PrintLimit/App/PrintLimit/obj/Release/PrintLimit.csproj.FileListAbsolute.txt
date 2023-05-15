@@ -1,0 +1,15 @@
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\PrintLimit.exe.config
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\PrintLimit.exe
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\PrintLimit.pdb
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\EntityFramework.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\EntityFramework.SqlServer.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\EntityFramework.xml
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\EntityFramework.SqlServer.xml
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.csproj.AssemblyReference.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.csproj.SuggestedBindingRedirects.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.Properties.Resources.resources
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.csproj.GenerateResource.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.csproj.CoreCompileInputs.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.csproj.CopyComplete
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.exe
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.pdb

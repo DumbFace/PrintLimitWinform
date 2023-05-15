@@ -19,22 +19,15 @@ namespace PrintLimit.Services.WMIServices
     {
         private System.Timers.Timer aTimer = new System.Timers.Timer();
         const string ID_NHAN_VIEN = "idNhanVien";
-        private string _ip4Address;
         private readonly ICachingService cachingService;
         public WMIService()
         {
-            GetIP();
             cachingService = new CachingService();
-        }
-
-        public string Ip4Address
-        {
-            get { return _ip4Address; }
-            set { _ip4Address = value; }
         }
 
         public string GetIP()
         {
+            string Ip4Address = "";
             ManagementObjectSearcher NetworkSearcher = new ManagementObjectSearcher("SELECT IPAddress FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
             ManagementObjectCollection collectNetWork = NetworkSearcher.Get();
             foreach (ManagementObject obj in collectNetWork)
@@ -82,28 +75,8 @@ namespace PrintLimit.Services.WMIServices
                         }
                         //Lấy ID nhân viên
                         banIn.ID_NhanVien = nhanVien?.ID_NhanVien;
-                        // Kiểm tra có trong record hay không
-                        DateTime SecondAgo = DateTime.Now.AddSeconds(-20);
-                        DateTime SecondAfter = DateTime.Now.AddSeconds(20);
 
-                        NV_BanIn isBIExist = queryBanIn.Where(_ =>
-                                                _.TenTaiLieuDinhKem == banIn.TenTaiLieuDinhKem &&
-                                                _.ID_NhanVien == banIn.ID_NhanVien &&
-                                                _.PaperSize == banIn.PaperSize &&
-                                                _.TenMayIn == banIn.TenMayIn &&
-                                                _.JobID == banIn.JobID &&
-                                                _.ThoiGianPrint > SecondAgo && _.ThoiGianPrint < SecondAfter
-                            ).FirstOrDefault();
-
-
-                        // Có bản in và tổng số trang lớn hơn đối tượng hiện tại thì cập nhật, không thì thêm mới
-                        if (isBIExist != null && isBIExist.TongSoTrang < banIn.TongSoTrang)
-                        {
-
-                            isBIExist.TongSoTrang = banIn.TongSoTrang;
-                            context.SaveChanges();
-                        }
-                        else if (isBIExist == null && enablePrint)
+                        if (enablePrint)
                         {
                             banIn.ThoiGianPrint = DateTime.Now;
                             banIn.ThoiGianUpload = DateTime.Now;
@@ -123,11 +96,6 @@ namespace PrintLimit.Services.WMIServices
         private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
             // Update the label in the UI thread
-
-            //this.Invoke((MethodInvoker)delegate {
-            //    // Update your label here
-            //    yourLabel.Text = "Updated number: " + counter++;
-            //});
             enablePrint = true;
             aTimer.Enabled = false;
         }
@@ -135,27 +103,6 @@ namespace PrintLimit.Services.WMIServices
 
         public NV_BanIn GetBanInViaPrintJob(EventArrivedEventArgs e)
         {
-            //var Caption = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Caption"];
-            //var Description = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Description"];
-            //var InstallDate = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["InstallDate"];
-            //var ElapsedTime = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["ElapsedTime"];
-            //var Notify = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Notify"];
-            //var Owner = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Owner"];
-            //var Priority = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Priority"];
-            //var StartTime = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["StartTime"];
-            //var TimeSubmitted = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["TimeSubmitted"];
-            //var UntilTime = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["UntilTime"];
-            //var Color = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Color"];
-            //var DataType = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["DataType"];
-            //var HostPrintQueue = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["HostPrintQueue"];
-            //var PagesPrinted = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["PagesPrinted"];
-            //var PaperLength = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["PaperLength"];
-            //var PaperWidth = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["PaperWidth"];
-            //var Parameters = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Parameters"];
-            //var PrintProcessor = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["PrintProcessor"];
-            //var Size = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Size"];
-            //var StatusMask = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["StatusMask"];
-
             var DriverName = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["DriverName"].ToString();
             var Document = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Document"].ToString();
             var Name = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Name"].ToString();
