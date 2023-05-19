@@ -15,62 +15,8 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_024DD50F7D0C4A9FB7F374AF25696270"
+        "MsmKey" = "8:_11116B04EF7F452A8747039ED223A2B8"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_259144D18FAAE89BCB0F191C84E1CF66"
-        "OwnerKey" = "8:_024DD50F7D0C4A9FB7F374AF25696270"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_28D6BDA57D46DB76484CE3E35B2065DD"
-        "OwnerKey" = "8:_024DD50F7D0C4A9FB7F374AF25696270"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_28D6BDA57D46DB76484CE3E35B2065DD"
-        "OwnerKey" = "8:_259144D18FAAE89BCB0F191C84E1CF66"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_303D89B3D0FD2D030A6ADC91346D44EB"
-        "OwnerKey" = "8:_024DD50F7D0C4A9FB7F374AF25696270"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C333A42A352E4E2A8972F1C6521A3B45"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_024DD50F7D0C4A9FB7F374AF25696270"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_259144D18FAAE89BCB0F191C84E1CF66"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_28D6BDA57D46DB76484CE3E35B2065DD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_303D89B3D0FD2D030A6ADC91346D44EB"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -98,6 +44,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -122,6 +76,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -152,102 +114,9 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_259144D18FAAE89BCB0F191C84E1CF66"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_11116B04EF7F452A8747039ED223A2B8"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_259144D18FAAE89BCB0F191C84E1CF66"
-                    {
-                    "Name" = "8:EntityFramework.SqlServer.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:EntityFramework.SqlServer.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_003096CEC4D24CC687B201CE437723D1"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_28D6BDA57D46DB76484CE3E35B2065DD"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_28D6BDA57D46DB76484CE3E35B2065DD"
-                    {
-                    "Name" = "8:EntityFramework.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:EntityFramework.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_003096CEC4D24CC687B201CE437723D1"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_303D89B3D0FD2D030A6ADC91346D44EB"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
-                "ScatterAssemblies"
-                {
-                    "_303D89B3D0FD2D030A6ADC91346D44EB"
-                    {
-                    "Name" = "8:System.Net.Http.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:System.Net.Http.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_003096CEC4D24CC687B201CE437723D1"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C333A42A352E4E2A8972F1C6521A3B45"
-            {
-            "SourcePath" = "8:..\\..\\..\\PrintLimit\\Assets\\icon\\printer.ico"
+            "SourcePath" = "8:..\\App\\PrintLimit\\Assets\\icon\\printer.ico"
             "TargetName" = "8:printer.ico"
             "Tag" = "8:"
             "Folder" = "8:_003096CEC4D24CC687B201CE437723D1"
@@ -333,7 +202,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:PrintManager"
         "ProductCode" = "8:{982FCF39-8632-46FD-B0D8-9A18DEFC369A}"
-        "PackageCode" = "8:{AE617E11-1A4D-4C0A-B9FA-BE2783FCC2CF}"
+        "PackageCode" = "8:{17A3205A-67E3-418D-9EDE-7501B750E637}"
         "UpgradeCode" = "8:{F81254B1-56B6-44A7-B7F9-3F2ADD6524BD}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
@@ -453,18 +322,18 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_DDAABA1239EE4D5CA8E9D50F4AAD6B57"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_C8B36F2E9F094066A7C06EB5440A9CAC"
             {
-            "Name" = "8:PrintManager"
+            "Name" = "8:PrintManager - ShortCut"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_024DD50F7D0C4A9FB7F374AF25696270"
+            "Target" = "8:"
             "Folder" = "8:_3295909646AF4E7B87583584E32E3B20"
             "WorkingFolder" = "8:_003096CEC4D24CC687B201CE437723D1"
-            "Icon" = "8:_C333A42A352E4E2A8972F1C6521A3B45"
+            "Icon" = "8:_11116B04EF7F452A8747039ED223A2B8"
             "Feature" = "8:"
             }
         }
@@ -866,7 +735,7 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_024DD50F7D0C4A9FB7F374AF25696270"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7DBE992D23A24364B964DD5EF9B7B2F2"
             {
             "SourcePath" = "8:..\\App\\PrintLimit\\obj\\Debug\\PrintLimit.exe"
             "TargetName" = "8:"

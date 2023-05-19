@@ -24,3 +24,7 @@ D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\EntityFrame
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\EntityFramework.xml
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\EntityFramework.SqlServer.xml
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Debug\PrintLimit.csproj.CopyComplete
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Cake.Powershell.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\System.Management.Automation.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Cake.Powershell.pdb
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Cake.Powershell.xml

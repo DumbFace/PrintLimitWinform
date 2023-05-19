@@ -14,7 +14,7 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Cake.Powershell, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Cake.Powershell.1.0.1\lib\net46\Cake.Powershell.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -43,10 +46,15 @@
       <HintPath>..\..\packages\Interop.IWshRuntimeLibrary.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="ReachFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Cake.Powershell.1.0.1\lib\net46\System.Management.Automation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Printing" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
@@ -115,12 +123,20 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\CachingServices\ICachingService.cs" />
     <Compile Include="Services\CachingServices\CachingService.cs" />
+    <Compile Include="Services\ConfigurateServices\ConfigurateService.cs" />
+    <Compile Include="Services\ConfigurateServices\IConfigurateService.cs" />
     <Compile Include="Services\DALServices\IDALService.cs" />
     <Compile Include="Services\DALServices\DALService.cs" />
+    <Compile Include="Services\JobServices\IJobService.cs" />
+    <Compile Include="Services\JobServices\JobService.cs" />
+    <Compile Include="Services\RegisterEventServices\IEventWMIService.cs" />
+    <Compile Include="Services\RegisterEventServices\IEventLogPrintService.cs" />
+    <Compile Include="Services\RegisterEventServices\RegisterEvent.cs" />
     <Compile Include="Services\EventWatcherServices\IEventWatcherService.cs" />
     <Compile Include="Services\EventWatcherServices\EventWatcherService.cs" />
     <Compile Include="Services\WMIServices\IWMIService.cs" />
     <Compile Include="Services\WMIServices\WMIService.cs" />
+    <Compile Include="Singleton\Singleton.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

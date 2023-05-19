@@ -39,18 +39,16 @@ namespace PrintLimit.Services.EventWatcherServices
                     Scope = new ManagementScope(String.Format("\\\\{0}\\root\\CIMV2", ComputerName), null);
                 Scope.Connect();
 
-                WmiQuery = "Select * From __InstanceOperationEvent Within 0.1 " +
+                WmiQuery = "Select * From __InstanceOperationEvent Within 0.01 " +
                 "Where TargetInstance ISA 'Win32_PrintJob' ";
-
-                Watcher = new ManagementEventWatcher(Scope, new EventQuery(WmiQuery));
+                string wqlQuery = @"Select * From __InstanceModificationEvent  Within 0.1
+                Where TargetInstance ISA 'Win32_PrintJob' And TargetInstance.JobStatus = 'Printing'";
+                Watcher = new ManagementEventWatcher(Scope, new EventQuery(wqlQuery));
                 Watcher.EventArrived += new EventArrivedEventHandler(this.wMIService.GetPrintJob);
                 Watcher.Start();
-                //Console.Read();
-                //Watcher.Stop();
             }
             catch (Exception e)
             {
-                //Console.WriteLine("Exception {0} Trace {1}", e.Message, e.StackTrace);
             }
         }
     }

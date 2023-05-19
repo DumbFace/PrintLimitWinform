@@ -1,7 +1,10 @@
 ﻿using IWshRuntimeLibrary;
 using Microsoft.Win32;
+using PrintLimit.Services.ConfigurateServices;
 using PrintLimit.Services.DALServices;
+using PrintLimit.Services.EventServices;
 using PrintLimit.Services.EventWatcherServices;
+using PrintLimit.Services.RegisterEventServices;
 using PrintLimit.Services.WMIServices;
 using System;
 using System.Collections.Generic;
@@ -20,7 +23,9 @@ namespace PrintLimit
         private readonly IWMIService wMIService;
         private readonly IEventWatcherService eventWatcherService;
         private readonly IDALService dALService;
-
+        private readonly IConfigurateService configurateService;
+        private readonly IEventLogPrintService eventLogPrintService;
+        private readonly IEventWMIService eventWMIService;
         //private readonly IWMIService wMIService;
 
         //private 
@@ -39,15 +44,19 @@ namespace PrintLimit
             wMIService = new WMIService();
             eventWatcherService = new EventWatcherService(wMIService);
             dALService = new DALService();
-
+            configurateService = new ConfigurateService();
+            eventWMIService = new RegisterEvent();
+            eventLogPrintService = new RegisterEvent();
             // Đặt form ở chế độ không hiển thị
             this.WindowState = FormWindowState.Minimized;
             this.ShowInTaskbar = false;
-
             // Bắt đầu công việc nền
-            if (!IsApplicationAlreadyRunning())
+            if (!configurateService.PreventMultipleThreadStart())
             {
-                SetStartup();
+                configurateService.CopyShortcutToStartup();
+                configurateService.RegisterForceSetCopyCount();
+                configurateService.EnableLogPrintService();
+
                 Thread workerThread = new Thread(DoWork);
                 workerThread.Start();
             }
@@ -59,37 +68,6 @@ namespace PrintLimit
             }
         }
 
-        private void SetStartup()
-        {
-            var shell = new WshShell();
-
-            string startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-            string sourceFile = @"C:\Program Files (x86)\VinaAi\PrintManager\PrintManager\PrintLimit.exe";
-            string shortcutPath = Path.Combine(startupFolder, Path.GetFileNameWithoutExtension(sourceFile) + ".lnk");
-            var shortcut = shell.CreateShortcut(shortcutPath) as IWshShortcut;
-
-            try
-            {
-
-                shortcut.TargetPath = sourceFile;
-                shortcut.Description = "PrintLimit.exe - Shortcut";
-                shortcut.WorkingDirectory = startupFolder;
-
-                shortcut.Save();
-            }
-            catch (IOException iox)
-            {
-                Console.WriteLine(iox.Message);
-            }
-        }
-
-        static bool IsApplicationAlreadyRunning()
-        {
-            string processName = Process.GetCurrentProcess().ProcessName;
-            Process[] processes = Process.GetProcessesByName(processName);
-            return (processes.Length > 1);
-        }
-
         public void DoWork()
         {
             string ip4Address = "";
@@ -97,7 +75,8 @@ namespace PrintLimit
 
             if (dALService.CheckEmployeeViaIP(ip4Address) != null)
             {
-                eventWatcherService.WatcherPrintJob();
+                eventWMIService.RegisterPrintJob();
+                eventLogPrintService.RegisterLogPrintService();
             }
             else
             {

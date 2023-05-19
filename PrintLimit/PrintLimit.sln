@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintLimit", "App\PrintLimit\PrintLimit.csproj", "{54EF40F2-8BD9-4FE0-9A95-F0129F6B0A4C}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PrintManager", "PrintManager\PrintManager.vdproj", "{B02B2E56-A58C-4D97-BA62-59D01B308D2D}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PrintManager", "..\PrintManagerSetup\PrintManager\PrintManager.vdproj", "{5397571E-FAEA-48A2-AA19-3A21B530FC4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,8 +17,8 @@ Global
 		{54EF40F2-8BD9-4FE0-9A95-F0129F6B0A4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54EF40F2-8BD9-4FE0-9A95-F0129F6B0A4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54EF40F2-8BD9-4FE0-9A95-F0129F6B0A4C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B02B2E56-A58C-4D97-BA62-59D01B308D2D}.Debug|Any CPU.ActiveCfg = Debug
-		{B02B2E56-A58C-4D97-BA62-59D01B308D2D}.Release|Any CPU.ActiveCfg = Release
+		{5397571E-FAEA-48A2-AA19-3A21B530FC4A}.Debug|Any CPU.ActiveCfg = Debug
+		{5397571E-FAEA-48A2-AA19-3A21B530FC4A}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
