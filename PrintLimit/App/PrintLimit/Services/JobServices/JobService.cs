@@ -1,5 +1,6 @@
 ﻿using PrintLimit.Data.EF;
 using PrintLimit.Services.CachingServices;
+using PrintLimit.Structure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -12,6 +13,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Xml.Linq;
+using PrintLimit.API_Win32;
+using PrintLimit.Models;
 
 namespace PrintLimit.Services.JobServices
 {
@@ -22,6 +25,36 @@ namespace PrintLimit.Services.JobServices
         public JobService()
         {
             cachingService = new CachingService();
+        }
+
+        public void CreateSpoolingJob(object sender, EventArrivedEventArgs e)
+        {
+            var printJobDocument = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Document"];
+            var printJobPaperSize = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["PaperSize"];
+            var printJobName = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Name"];
+            var printJobId = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["JobId"];
+            var printJobTotalPages = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["TotalPages"];
+
+            string document = printJobDocument != null ? printJobDocument.ToString() : "";
+            string paperSize = printJobPaperSize != null ? printJobPaperSize.ToString() : "";
+            string name = printJobName != null ? printJobName.ToString().Split(',')[0] : "";
+            string jobID = printJobId != null ? printJobId.ToString() : "";
+            int totalPages = printJobTotalPages != null ? Convert.ToInt32(printJobTotalPages) : 0;
+
+            Singleton singleton = Singleton.GetInstance();
+            ManagementBaseObject job = (ManagementBaseObject)e.NewEvent["TargetInstance"];
+            uint jobId = job["JobID"] != null ? Convert.ToUInt32(job["JobID"]) : 0;
+            var jobName = job["Name"];
+            string printerName = jobName != null ? jobName.ToString().Split(',')[0] : "";
+
+            BanInViewModel nV_BanIn = GetInfoSpooling(jobId, printerName, totalPages);
+
+            nV_BanIn.PrintJob = jobID;
+            nV_BanIn.Document = document;
+            nV_BanIn.PaperSize = paperSize;
+            nV_BanIn.TenMayIn = name;
+
+            singleton.ListSpooling.Add(nV_BanIn);
         }
 
         public string GetIP()
@@ -49,22 +82,27 @@ namespace PrintLimit.Services.JobServices
                     XNamespace ns = "http://manifests.microsoft.com/win/2005/08/windows/printing/spooler/core/events";
 
                     var renderJobDiagNodes = doc.Descendants(ns + "DocumentPrinted");
-                    int totalPages = 0;
+                    string jobID = "";
                     foreach (var node in renderJobDiagNodes)
                     {
-                        var totalPagesAsString = node.Element(ns + "Param8").Value;
-                        totalPages = totalPagesAsString != "" ? Convert.ToInt32(totalPagesAsString) : 0;
+                        jobID = node.Element(ns + "Param1").Value;
                     }
 
-                    NV_BanIn banIn = new NV_BanIn
+                    BanInViewModel banInViewModel = singleton.ListSpooling.Where(_ => _.PrintJob == jobID).FirstOrDefault();
+                    NV_BanIn banIn = null;
+
+                    if (banInViewModel != null)
                     {
-                        TenTaiLieuDinhKem = singleton.Document,
-                        ThoiGianPrint = DateTime.Now,
-                        TongSoTrangDaIn = singleton.Copies * totalPages,
-                        PaperSize = singleton.PaperSize,
-                        TenMayIn = singleton.NamePrinter,
-                        TrangThaiText = "Đã In Thành Công",
-                    };
+                        banIn = new NV_BanIn
+                        {
+                            TenTaiLieuDinhKem = banInViewModel.Document,
+                            ThoiGianPrint = DateTime.Now,
+                            TongSoTrangDaIn = banInViewModel.TongSoTrangDaIn,
+                            PaperSize = banInViewModel.PaperSize,
+                            TenMayIn = banInViewModel.TenMayIn,
+                            TrangThaiText = "Đã In Thành Công",
+                        };
+                    }
 
                     if (
                     banIn.TenMayIn.ToLower() != "microsoft print to pdf" &&
@@ -93,30 +131,31 @@ namespace PrintLimit.Services.JobServices
                             context.NV_BanIn.Add(banIn);
                             context.SaveChanges();
 
-                            singleton.Refresh();
+                            singleton.ListSpooling.Remove(banInViewModel);
+                            //singleton.Refresh();
                         }
                     }
 
                 }
                 else if (e.EventRecord.Id == 805)
                 {
-                    string xml = e.EventRecord.ToXml();
-                    XDocument doc = XDocument.Parse(xml);
-                    XNamespace ns = "http://manifests.microsoft.com/win/2005/08/windows/printing/spooler/core/events";
+                    //string xml = e.EventRecord.ToXml();
+                    //XDocument doc = XDocument.Parse(xml);
+                    //XNamespace ns = "http://manifests.microsoft.com/win/2005/08/windows/printing/spooler/core/events";
 
-                    var renderJobDiagNodes = doc.Descendants(ns + "RenderJobDiag");
+                    //var renderJobDiagNodes = doc.Descendants(ns + "RenderJobDiag");
 
-                    foreach (var node in renderJobDiagNodes)
-                    {
-                        var copiesAsString = node.Element(ns + "Copies").Value;
-                        int copies = copiesAsString != "" ? Convert.ToInt32(copiesAsString) : 0;
-                        Singleton singleton = Singleton.GetInstance();
-                        singleton.Copies = copies;
-                    }
+                    //foreach (var node in renderJobDiagNodes)
+                    //{
+                    //    var copiesAsString = node.Element(ns + "Copies").Value;
+                    //    int copies = copiesAsString != "" ? Convert.ToInt32(copiesAsString) : 0;
+                    //    Singleton singleton = Singleton.GetInstance();
+                    //    singleton.Copies = copies;
+                    //}
                 }
             }
         }
-      
+
         public void PrintJob(object sender, EventArrivedEventArgs e)
         {
             var printJobDocument = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Document"];
@@ -126,32 +165,59 @@ namespace PrintLimit.Services.JobServices
 
             var singleton = Singleton.GetInstance();
 
-
             string document = printJobDocument != null ? printJobDocument.ToString() : "";
             string paperSize = printJobPaperSize != null ? printJobPaperSize.ToString() : "";
             string name = printJobName != null ? printJobName.ToString().Split(',')[0] : "";
-            
+
 
             singleton.PaperSize = paperSize;
             singleton.Document = document;
             singleton.NamePrinter = name;
 
-            string printerName = name; // Replace with your printer's name
-            PrintServer printServer = new PrintServer();
-            PrintQueue printQueue = printServer.GetPrintQueue(printerName);
+        }
 
-            printQueue.Refresh();
+        public BanInViewModel GetInfoSpooling(uint jobId, string printerName,int totalPages)
+        {
+            BanInViewModel nV_BanIn = new BanInViewModel();
+            IntPtr hPrinter;
 
-            foreach (PrintSystemJobInfo job in printQueue.GetPrintJobInfoCollection())
+            if (!WinpoolDLL.OpenPrinter(printerName, out hPrinter, IntPtr.Zero))
+                throw new Exception("Failed to open printer.");
+
+            uint bytesNeeded;
+            WinpoolDLL.GetJob(hPrinter, jobId, 2, IntPtr.Zero, 0, out bytesNeeded);
+
+            if (Marshal.GetLastWin32Error() != 122)  // ERROR_INSUFFICIENT_BUFFER
+                throw new Exception("Failed to get job info.");
+
+            IntPtr pJobInfo = Marshal.AllocHGlobal((int)bytesNeeded);
+
+            if (WinpoolDLL.GetJob(hPrinter, jobId, 2, pJobInfo, bytesNeeded, out bytesNeeded))
             {
-                var defaultPrintTicket = job.HostingPrintQueue.DefaultPrintTicket.Duplexing;
-                Console.WriteLine(job.HostingPrintQueue.UserPrintTicket.Duplexing);
-                //Console.WriteLine("Job ID: {0}", job.HostingPrintServer.Dup);
-                //Console.WriteLine("Copies: {0}", job.NumberOfPages);
+                JOB_INFO_2 jobInfo = (JOB_INFO_2)Marshal.PtrToStructure(pJobInfo, typeof(JOB_INFO_2));
+                DEVMODE devMode = (DEVMODE)Marshal.PtrToStructure(jobInfo.pDevMode, typeof(DEVMODE));
+
+                // Do what you need with devMode...
+                switch (devMode.dmDuplex)
+                {
+                    case 1:
+                        nV_BanIn.TongSoTrangDaIn = (int)totalPages * devMode.dmCopies;
+                        break;
+                    case 2:
+                    case 3:
+                        nV_BanIn.TongSoTrangDaIn = (int)Math.Round((double)totalPages / 2, MidpointRounding.ToEven) * devMode.dmCopies;
+                        break;
+                }
+                Marshal.FreeHGlobal(pJobInfo);
+            }
+            else
+            {
+                throw new Exception("Failed to get job info.");
             }
 
+            WinpoolDLL.ClosePrinter(hPrinter);
 
-           
+            return nV_BanIn;
         }
     }
 }

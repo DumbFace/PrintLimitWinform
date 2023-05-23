@@ -26,6 +26,8 @@ namespace PrintLimit
         private readonly IConfigurateService configurateService;
         private readonly IEventLogPrintService eventLogPrintService;
         private readonly IEventWMIService eventWMIService;
+        private readonly IEventCreateSpooling eventCreateSpooling;
+
         //private readonly IWMIService wMIService;
 
         //private 
@@ -47,6 +49,7 @@ namespace PrintLimit
             configurateService = new ConfigurateService();
             eventWMIService = new RegisterEvent();
             eventLogPrintService = new RegisterEvent();
+            eventCreateSpooling = new RegisterEvent();
             // Đặt form ở chế độ không hiển thị
             this.WindowState = FormWindowState.Minimized;
             this.ShowInTaskbar = false;
@@ -54,7 +57,7 @@ namespace PrintLimit
             if (!configurateService.PreventMultipleThreadStart())
             {
                 configurateService.CopyShortcutToStartup();
-                configurateService.RegisterForceSetCopyCount();
+                //configurateService.RegisterForceSetCopyCount();
                 configurateService.EnableLogPrintService();
 
                 Thread workerThread = new Thread(DoWork);
@@ -75,7 +78,7 @@ namespace PrintLimit
 
             if (dALService.CheckEmployeeViaIP(ip4Address) != null)
             {
-                eventWMIService.RegisterPrintJob();
+                eventCreateSpooling.CreateNewSpooling();
                 eventLogPrintService.RegisterLogPrintService();
             }
             else

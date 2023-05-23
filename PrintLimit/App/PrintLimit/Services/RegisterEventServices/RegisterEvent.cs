@@ -10,13 +10,34 @@ using System.Threading.Tasks;
 
 namespace PrintLimit.Services.EventServices
 {
-    class RegisterEvent : IEventLogPrintService, IEventWMIService
+    class RegisterEvent : IEventLogPrintService, IEventWMIService, IEventCreateSpooling
     {
         private readonly IJobService jobService;
 
         public RegisterEvent()
         {
             jobService = new JobService();
+        }
+
+        public void CreateNewSpooling()
+        {
+            // Tạo WMI query để theo dõi sự kiện thêm công việc in
+            string queryString =
+                "SELECT * " +
+                "FROM __InstanceCreationEvent WITHIN 1 " +
+                "WHERE TargetInstance ISA 'Win32_PrintJob'";
+
+            // Sử dụng WMI namespace 'CIMV2'
+            string scope = @"\\localhost\root\CIMV2";
+
+            // Tạo event watcher và gán các sự kiện
+            ManagementEventWatcher watcher = new ManagementEventWatcher(scope, queryString);
+
+            // Sự kiện xảy ra khi một công việc in mới được thêm vào hàng đợi
+            watcher.EventArrived += new EventArrivedEventHandler(this.jobService.CreateSpoolingJob);
+
+            // Bắt đầu giám sát sự kiện
+            watcher.Start();
         }
 
         public void RegisterLogPrintService()

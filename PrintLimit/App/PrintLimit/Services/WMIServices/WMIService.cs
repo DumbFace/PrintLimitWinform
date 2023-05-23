@@ -144,8 +144,6 @@ namespace PrintLimit.Services.WMIServices
             ManagementScope scope = new ManagementScope(@"\root\cimv2");
             scope.Connect();
 
-
-
             string printerName = Name; // Replace with your printer's name
             PrintServer printServer = new PrintServer();
             PrintQueue printQueue = printServer.GetPrintQueue(printerName);

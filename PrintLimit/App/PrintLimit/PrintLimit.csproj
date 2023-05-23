@@ -69,6 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API_Win32\WinpoolDLL.cs" />
     <Compile Include="Data\EF\DM_ChiTietNhanVienMayIn.cs">
       <DependentUpon>PrintLimitDB.tt</DependentUpon>
     </Compile>
@@ -117,6 +118,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>PrintLimitDB.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\BanInViewModel.cs" />
     <Compile Include="Program.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -129,6 +131,7 @@
     <Compile Include="Services\DALServices\DALService.cs" />
     <Compile Include="Services\JobServices\IJobService.cs" />
     <Compile Include="Services\JobServices\JobService.cs" />
+    <Compile Include="Services\RegisterEventServices\IEventCreateSpooling.cs" />
     <Compile Include="Services\RegisterEventServices\IEventWMIService.cs" />
     <Compile Include="Services\RegisterEventServices\IEventLogPrintService.cs" />
     <Compile Include="Services\RegisterEventServices\RegisterEvent.cs" />
@@ -137,6 +140,8 @@
     <Compile Include="Services\WMIServices\IWMIService.cs" />
     <Compile Include="Services\WMIServices\WMIService.cs" />
     <Compile Include="Singleton\Singleton.cs" />
+    <Compile Include="Structure\DEVMODE.cs" />
+    <Compile Include="Structure\JOB_INFO_2.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -187,5 +192,6 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

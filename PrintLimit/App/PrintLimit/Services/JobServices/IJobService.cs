@@ -12,5 +12,6 @@ namespace PrintLimit.Services.JobServices
     {
         void PrintJob(object sender, EventArrivedEventArgs e);
         void LogPrintServiceJob(object sender, EventRecordWrittenEventArgs e);
+        void CreateSpoolingJob(object sender, EventArrivedEventArgs e);
     }
 }
