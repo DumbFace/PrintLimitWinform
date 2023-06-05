@@ -8,6 +8,5 @@ namespace PrintLimit.Services.RegisterEventServices
 {
     interface IEventCreateSpooling
     {
-        void CreateNewSpooling();
     }
 }

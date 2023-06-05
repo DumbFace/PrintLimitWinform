@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
+using System.IO;
 using System.Linq;
 using System.Management;
 using System.Text;
@@ -12,6 +13,7 @@ namespace PrintLimit.Services.JobServices
     {
         void PrintJob(object sender, EventArrivedEventArgs e);
         void LogPrintServiceJob(object sender, EventRecordWrittenEventArgs e);
-        void CreateSpoolingJob(object sender, EventArrivedEventArgs e);
+        void MonitorSpoolingJob(object sender, EventArrivedEventArgs e);
+        void OnSpoolingCreated(object source, FileSystemEventArgs e);
     }
 }

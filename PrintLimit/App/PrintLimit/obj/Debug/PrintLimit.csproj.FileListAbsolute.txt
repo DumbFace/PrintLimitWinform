@@ -28,3 +28,10 @@ D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Cake.Powers
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\System.Management.Automation.dll
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Cake.Powershell.pdb
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Cake.Powershell.xml
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Serilog.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Serilog.Sinks.Console.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Serilog.Sinks.File.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Serilog.xml
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Serilog.Sinks.Console.xml
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Serilog.Sinks.File.pdb
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Debug\Serilog.Sinks.File.xml

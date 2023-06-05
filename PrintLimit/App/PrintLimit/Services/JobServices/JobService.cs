@@ -15,46 +15,77 @@ using System.Timers;
 using System.Xml.Linq;
 using PrintLimit.API_Win32;
 using PrintLimit.Models;
+using Serilog;
+using System.Windows.Forms;
+using System.IO;
+using PrintLimit.Services.AnalysisSpoolServices;
+using System.IO.Compression;
+using System.Threading;
+using Serilog.Core;
+using PrintLimit.Services.SerilogServices;
 
 namespace PrintLimit.Services.JobServices
 {
     class JobService : IJobService
     {
+
         const string ID_NHAN_VIEN = "idNhanVien";
         private readonly ICachingService cachingService;
+        private readonly IAnalysisSpoolService analysisSpoolService;
+        private readonly IWriteSerilog serilogService;
         public JobService()
         {
+            analysisSpoolService = new AnalysisSpoolService();
             cachingService = new CachingService();
+            serilogService = new SerilogService();
         }
 
-        public void CreateSpoolingJob(object sender, EventArrivedEventArgs e)
+        public void MonitorSpoolingJob(object sender, EventArrivedEventArgs e)
         {
-            var printJobDocument = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Document"];
-            var printJobPaperSize = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["PaperSize"];
-            var printJobName = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Name"];
-            var printJobId = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["JobId"];
-            var printJobTotalPages = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["TotalPages"];
+            try
+            {
+                var printJobDocument = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Document"];
+                var printJobPaperSize = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["PaperSize"];
+                var printJobName = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["Name"];
+                var printJobId = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["JobId"];
+                var printJobTotalPages = ((ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value)["TotalPages"];
 
-            string document = printJobDocument != null ? printJobDocument.ToString() : "";
-            string paperSize = printJobPaperSize != null ? printJobPaperSize.ToString() : "";
-            string name = printJobName != null ? printJobName.ToString().Split(',')[0] : "";
-            string jobID = printJobId != null ? printJobId.ToString() : "";
-            int totalPages = printJobTotalPages != null ? Convert.ToInt32(printJobTotalPages) : 0;
+                string document = printJobDocument != null ? printJobDocument.ToString() : "";
+                string paperSize = printJobPaperSize != null ? printJobPaperSize.ToString() : "";
+                string name = printJobName != null ? printJobName.ToString().Split(',')[0] : "";
+                string jobID = printJobId != null ? printJobId.ToString() : "";
+                int totalPages = printJobTotalPages != null ? Convert.ToInt32(printJobTotalPages) : 0;
 
-            Singleton singleton = Singleton.GetInstance();
-            ManagementBaseObject job = (ManagementBaseObject)e.NewEvent["TargetInstance"];
-            uint jobId = job["JobID"] != null ? Convert.ToUInt32(job["JobID"]) : 0;
-            var jobName = job["Name"];
-            string printerName = jobName != null ? jobName.ToString().Split(',')[0] : "";
+                Singleton singleton = Singleton.GetInstance();
+                ManagementBaseObject job = (ManagementBaseObject)e.NewEvent["TargetInstance"];
+                uint jobId = job["JobID"] != null ? Convert.ToUInt32(job["JobID"]) : 0;
+                var jobName = job["Name"];
+                string printerName = jobName != null ? jobName.ToString().Split(',')[0] : "";
 
-            BanInViewModel nV_BanIn = GetInfoSpooling(jobId, printerName, totalPages);
+                BanInViewModel nV_BanIn = new BanInViewModel();
+                nV_BanIn.PrintJob = jobID;
+                nV_BanIn.Document = document;
+                nV_BanIn.PaperSize = paperSize;
+                nV_BanIn.TenMayIn = name;
 
-            nV_BanIn.PrintJob = jobID;
-            nV_BanIn.Document = document;
-            nV_BanIn.PaperSize = paperSize;
-            nV_BanIn.TenMayIn = name;
+                serilogService.WriteBlockLog("Lấy thông tin bản in", new List<KeyValuePair<string, string>>()
+                        {
+                            new KeyValuePair<string, string>("ID", nV_BanIn.PrintJob.ToString()),
+                            new KeyValuePair<string, string>("Tên tài liệu", nV_BanIn.Document.ToString()),
+                            new KeyValuePair<string, string>("Khổ giấy", nV_BanIn.PaperSize.ToString()),
+                            new KeyValuePair<string, string>("Tên máy in", nV_BanIn.TenMayIn.ToString()),
+                        });
 
-            singleton.ListSpooling.Add(nV_BanIn);
+                singleton.ListSpooling.Add(nV_BanIn);
+                serilogService.WriteLogHeader("Thêm bản In vào list static");
+                serilogService.WriteLogInfo("Bản In ID", nV_BanIn.PrintJob);
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Có lỗi xảy ra trong quá trình lấy ID, tên tài liệu, khổ giấy, tên máy in: {ex.Message}");
+            }
+
         }
 
         public string GetIP()
@@ -72,86 +103,121 @@ namespace PrintLimit.Services.JobServices
         }
         public void LogPrintServiceJob(object sender, EventRecordWrittenEventArgs e)
         {
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string vinaAiPath = Path.Combine(appDataPath, "VinaAi\\");
+
             if (e.EventRecord != null)
             {
                 if (e.EventRecord.Id == 307)
                 {
-                    Singleton singleton = Singleton.GetInstance();
-                    string xml = e.EventRecord.ToXml();
-                    XDocument doc = XDocument.Parse(xml);
-                    XNamespace ns = "http://manifests.microsoft.com/win/2005/08/windows/printing/spooler/core/events";
-
-                    var renderJobDiagNodes = doc.Descendants(ns + "DocumentPrinted");
-                    string jobID = "";
-                    foreach (var node in renderJobDiagNodes)
+                    try
                     {
-                        jobID = node.Element(ns + "Param1").Value;
-                    }
+                        string xml = e.EventRecord.ToXml();
+                        XDocument doc = XDocument.Parse(xml);
+                        XNamespace ns = "http://manifests.microsoft.com/win/2005/08/windows/printing/spooler/core/events";
 
-                    BanInViewModel banInViewModel = singleton.ListSpooling.Where(_ => _.PrintJob == jobID).FirstOrDefault();
-                    NV_BanIn banIn = null;
-
-                    if (banInViewModel != null)
-                    {
-                        banIn = new NV_BanIn
+                        var renderJobDiagNodes = doc.Descendants(ns + "DocumentPrinted");
+                        string jobID = "";
+                        string tenMayIn = "";
+                        foreach (var node in renderJobDiagNodes)
                         {
-                            TenTaiLieuDinhKem = banInViewModel.Document,
-                            ThoiGianPrint = DateTime.Now,
-                            TongSoTrangDaIn = banInViewModel.TongSoTrangDaIn,
-                            PaperSize = banInViewModel.PaperSize,
-                            TenMayIn = banInViewModel.TenMayIn,
-                            TrangThaiText = "Đã In Thành Công",
-                        };
-                    }
+                            jobID = node.Element(ns + "Param1").Value;
+                            tenMayIn = node.Element(ns + "Param5").Value;
+                        }
 
-                    if (
-                    banIn.TenMayIn.ToLower() != "microsoft print to pdf" &&
-                    banIn.TenMayIn.ToLower() != "fax" &&
-                    banIn.TenMayIn.ToLower() != "microsoft xps document writer" &&
-                    banIn.TenMayIn.ToLower() != "onenote for windows 10")
-                    {
-                        using (var context = new Print_LimitEntities())
+                        Singleton singleton = Singleton.GetInstance();
+                        BanInViewModel banInViewModel = singleton.ListSpooling.Where(_ => _.PrintJob == jobID).FirstOrDefault();
+
+                        if (banInViewModel == null)
                         {
-                            string ip = GetIP();
-                            //context.Database.Log = Console.Write;
-                            var queryNV = context.DM_NhanVien.AsQueryable();
-                            var queryBanIn = context.NV_BanIn.AsQueryable();
+                            banInViewModel = new BanInViewModel();
+                            banInViewModel.Document = "Null";
+                            banInViewModel.TenMayIn = tenMayIn;
+                        }
+                        else
+                        {
+                            banInViewModel.TenMayIn = tenMayIn;
+                        }
 
 
-                            //Tìm kiếm nhân viên trong cache, có thì lấy địa chỉ IP, không thì truy vấn dưới DB.
-                            var nhanVien = cachingService.GetFromCache<DM_NhanVien>(ID_NHAN_VIEN);
-                            if (nhanVien == null)
+                        string filePath = vinaAiPath + $"{jobID.PadLeft(5, '0')}.SPL";
+                        using (ZipArchive archive = ZipFile.OpenRead(filePath))
+                        {
+
+                            PrintJobModel printJobModel = analysisSpoolService.GetCopyDuplexPaperSize(archive);
+                            printJobModel.TotalPages = analysisSpoolService.GetTotalPages(archive);
+
+                            serilogService.WriteBlockLog("Analysis", new List<KeyValuePair<string, string>>()
                             {
-                                nhanVien = queryNV.Where(_ => _.Bios_MayTinh == ip).FirstOrDefault();
-                                cachingService.AddToCache(ID_NHAN_VIEN, nhanVien, DateTimeOffset.UtcNow.AddHours(1));
+                                new KeyValuePair<string, string>("TotalPages", printJobModel.TotalPages.ToString()),
+                                new KeyValuePair<string, string>("Copies", printJobModel.Copies.ToString()),
+                                new KeyValuePair<string, string>("Duplex", printJobModel.Duplex.ToString()),
+                                new KeyValuePair<string, string>("PaperSize", printJobModel.PaperSize.ToString()),
+                            });
+
+                            banInViewModel.Duplex = printJobModel.Duplex;
+                            banInViewModel.Copies = printJobModel.Copies;
+                            banInViewModel.TotalPagesPerDoc = printJobModel.TotalPages;
+                            banInViewModel.PaperSize = printJobModel.PaperSize;
+                        }
+
+                        NV_BanIn banIn = null;
+                        if (banInViewModel != null)
+                        {
+                            banIn = new NV_BanIn
+                            {
+                                TenTaiLieuDinhKem = banInViewModel.Document,
+                                ThoiGianPrint = DateTime.Now,
+                                TongSoTrangDaIn = banInViewModel.Duplex ?
+                                                            (int)Math.Round((double)banInViewModel.TotalPagesPerDoc / 2, MidpointRounding.AwayFromZero) *
+                                                            banInViewModel.Copies :
+                                                            (int)banInViewModel.TotalPagesPerDoc * banInViewModel.Copies,
+                                PaperSize = banInViewModel.PaperSize,
+                                TenMayIn = banInViewModel.TenMayIn,
+                                TrangThaiText = "Đã In Thành Công",
+                            };
+                        }
+
+                        if (banIn != null)
+                        {
+                            if (
+                                banIn.TenMayIn.ToLower() != "microsoft print to pdf" &&
+                                banIn.TenMayIn.ToLower() != "fax" &&
+                                banIn.TenMayIn.ToLower() != "microsoft xps document writer" &&
+                                banIn.TenMayIn.ToLower() != "onenote for windows 10")
+                            {
+                                using (var context = new Print_LimitEntities())
+                                {
+                                    string ip = GetIP();
+                                    var queryNV = context.DM_NhanVien.AsQueryable();
+                                    var queryBanIn = context.NV_BanIn.AsQueryable();
+
+                                    //Tìm kiếm nhân viên trong cache, có thì lấy địa chỉ IP, không thì truy vấn dưới DB.
+                                    var nhanVien = cachingService.GetFromCache<DM_NhanVien>(ID_NHAN_VIEN);
+                                    if (nhanVien == null)
+                                    {
+                                        nhanVien = queryNV.Where(_ => _.Bios_MayTinh == ip).FirstOrDefault();
+                                        cachingService.AddToCache(ID_NHAN_VIEN, nhanVien, DateTimeOffset.UtcNow.AddHours(1));
+                                    }
+                                    //Lấy ID nhân viên
+                                    banIn.ID_NhanVien = nhanVien?.ID_NhanVien;
+
+                                    context.NV_BanIn.Add(banIn);
+                                    context.SaveChanges();
+
+                                    singleton.ListSpooling.Remove(banInViewModel);
+                                }
                             }
-                            //Lấy ID nhân viên
-                            banIn.ID_NhanVien = nhanVien?.ID_NhanVien;
-
-                            context.NV_BanIn.Add(banIn);
-                            context.SaveChanges();
-
-                            singleton.ListSpooling.Remove(banInViewModel);
-                            //singleton.Refresh();
+                        }
+                        else
+                        {
+                            Log.Error("Bản In Null");
                         }
                     }
-
-                }
-                else if (e.EventRecord.Id == 805)
-                {
-                    //string xml = e.EventRecord.ToXml();
-                    //XDocument doc = XDocument.Parse(xml);
-                    //XNamespace ns = "http://manifests.microsoft.com/win/2005/08/windows/printing/spooler/core/events";
-
-                    //var renderJobDiagNodes = doc.Descendants(ns + "RenderJobDiag");
-
-                    //foreach (var node in renderJobDiagNodes)
-                    //{
-                    //    var copiesAsString = node.Element(ns + "Copies").Value;
-                    //    int copies = copiesAsString != "" ? Convert.ToInt32(copiesAsString) : 0;
-                    //    Singleton singleton = Singleton.GetInstance();
-                    //    singleton.Copies = copies;
-                    //}
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Có lỗi trong quá trình thêm dữ liệu vào db {ex.Message}");
+                    }
                 }
             }
         }
@@ -169,55 +235,31 @@ namespace PrintLimit.Services.JobServices
             string paperSize = printJobPaperSize != null ? printJobPaperSize.ToString() : "";
             string name = printJobName != null ? printJobName.ToString().Split(',')[0] : "";
 
-
             singleton.PaperSize = paperSize;
             singleton.Document = document;
             singleton.NamePrinter = name;
-
         }
 
-        public BanInViewModel GetInfoSpooling(uint jobId, string printerName,int totalPages)
+        public void OnSpoolingCreated(object source, FileSystemEventArgs e)
         {
-            BanInViewModel nV_BanIn = new BanInViewModel();
-            IntPtr hPrinter;
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string vinaAiPath = Path.Combine(appDataPath, "VinaAi\\");
 
-            if (!WinpoolDLL.OpenPrinter(printerName, out hPrinter, IntPtr.Zero))
-                throw new Exception("Failed to open printer.");
-
-            uint bytesNeeded;
-            WinpoolDLL.GetJob(hPrinter, jobId, 2, IntPtr.Zero, 0, out bytesNeeded);
-
-            if (Marshal.GetLastWin32Error() != 122)  // ERROR_INSUFFICIENT_BUFFER
-                throw new Exception("Failed to get job info.");
-
-            IntPtr pJobInfo = Marshal.AllocHGlobal((int)bytesNeeded);
-
-            if (WinpoolDLL.GetJob(hPrinter, jobId, 2, pJobInfo, bytesNeeded, out bytesNeeded))
+            // Kiểm tra xem thư mục VinaAi có tồn tại không, nếu không thì tạo mới
+            if (!Directory.Exists(vinaAiPath))
             {
-                JOB_INFO_2 jobInfo = (JOB_INFO_2)Marshal.PtrToStructure(pJobInfo, typeof(JOB_INFO_2));
-                DEVMODE devMode = (DEVMODE)Marshal.PtrToStructure(jobInfo.pDevMode, typeof(DEVMODE));
-
-                // Do what you need with devMode...
-                switch (devMode.dmDuplex)
-                {
-                    case 1:
-                        nV_BanIn.TongSoTrangDaIn = (int)totalPages * devMode.dmCopies;
-                        break;
-                    case 2:
-                    case 3:
-                        nV_BanIn.TongSoTrangDaIn = (int)Math.Round((double)totalPages / 2, MidpointRounding.ToEven) * devMode.dmCopies;
-                        break;
-                }
-                Marshal.FreeHGlobal(pJobInfo);
-            }
-            else
-            {
-                throw new Exception("Failed to get job info.");
+                Directory.CreateDirectory(vinaAiPath);
             }
 
-            WinpoolDLL.ClosePrinter(hPrinter);
-
-            return nV_BanIn;
+            try
+            {
+                byte[] fileBytes = File.ReadAllBytes(e.FullPath);
+                File.WriteAllBytes(vinaAiPath + Path.GetFileName(e.FullPath), fileBytes);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Có lỗi xảy trong trong quá trình copy files SPL: " + ex.Message);
+            }
         }
     }
 }

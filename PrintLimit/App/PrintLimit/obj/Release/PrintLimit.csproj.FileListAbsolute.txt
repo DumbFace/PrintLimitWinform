@@ -13,3 +13,14 @@ D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimi
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.csproj.CopyComplete
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.exe
 D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\obj\Release\PrintLimit.pdb
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Cake.Powershell.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Serilog.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Serilog.Sinks.Console.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Serilog.Sinks.File.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\System.Management.Automation.dll
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Cake.Powershell.pdb
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Cake.Powershell.xml
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Serilog.xml
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Serilog.Sinks.Console.xml
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Serilog.Sinks.File.pdb
+D:\Repo\Github\PrintLimitWinform\PrintLimit\App\PrintLimit\bin\Release\Serilog.Sinks.File.xml

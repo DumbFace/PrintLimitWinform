@@ -22,14 +22,12 @@ namespace PrintLimit.Services.ConfigurateServices
             bool result = false;
             var shell = new WshShell();
             string startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-            string sourceFile = @"C:\Program Files (x86)\VinaAi\PrintManager\PrintManager\PrintLimit.exe";
+            string sourceFile = @"C:\Program Files (x86)\VinaAi\PrintManager\PrintLimit.exe - Shortcut";
             string shortcutPath = Path.Combine(startupFolder, Path.GetFileNameWithoutExtension(sourceFile) + ".lnk");
             var shortcut = shell.CreateShortcut(shortcutPath) as IWshShortcut;
             try
             {
-
                 shortcut.TargetPath = sourceFile;
-                shortcut.Description = "PrintLimit.exe - Shortcut";
                 shortcut.WorkingDirectory = startupFolder;
                 shortcut.Save();
                 result = true;

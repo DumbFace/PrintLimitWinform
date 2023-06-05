@@ -12,7 +12,5 @@ namespace PrintLimit.Services.WMIServices
     {
         string GetIP();
         void GetPrintJob(object sender, EventArrivedEventArgs e);
-
-
     }
 }

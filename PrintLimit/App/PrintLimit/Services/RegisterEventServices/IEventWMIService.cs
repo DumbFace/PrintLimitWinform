@@ -9,5 +9,6 @@ namespace PrintLimit.Services.RegisterEventServices
     interface IEventWMIService
     {
         void RegisterPrintJob();
+        void MonitorPrintJob();
     }
 }

@@ -27,7 +27,7 @@ namespace PrintLimit
         private readonly IEventLogPrintService eventLogPrintService;
         private readonly IEventWMIService eventWMIService;
         private readonly IEventCreateSpooling eventCreateSpooling;
-
+        private readonly IEventPrintSpool eventPrintSpool;
         //private readonly IWMIService wMIService;
 
         //private 
@@ -49,14 +49,16 @@ namespace PrintLimit
             configurateService = new ConfigurateService();
             eventWMIService = new RegisterEvent();
             eventLogPrintService = new RegisterEvent();
+            eventPrintSpool = new RegisterEvent();
             eventCreateSpooling = new RegisterEvent();
+            eventPrintSpool = new RegisterEvent();
             // Đặt form ở chế độ không hiển thị
             this.WindowState = FormWindowState.Minimized;
             this.ShowInTaskbar = false;
             // Bắt đầu công việc nền
             if (!configurateService.PreventMultipleThreadStart())
             {
-                configurateService.CopyShortcutToStartup();
+                //configurateService.CopyShortcutToStartup();
                 //configurateService.RegisterForceSetCopyCount();
                 configurateService.EnableLogPrintService();
 
@@ -78,13 +80,22 @@ namespace PrintLimit
 
             if (dALService.CheckEmployeeViaIP(ip4Address) != null)
             {
-                eventCreateSpooling.CreateNewSpooling();
+
+                //Copy spool file vào appdata
+                eventPrintSpool.CreateSpoolPrint();
+
+                //Giám sát in lấy thông tin tên file, loại giấy...
+                eventWMIService.MonitorPrintJob();
+
+                //Giám sám in trong window event nếu có sự kiện in thì lưu vào db
                 eventLogPrintService.RegisterLogPrintService();
             }
             else
             {
                 MessageBox.Show("Bạn vui lòng tạo địa chỉ IP trên danh mục máy tính để thống kê in ấn");
-                eventWatcherService.WatcherPrintJob();
+                eventPrintSpool.CreateSpoolPrint();
+                eventWMIService.MonitorPrintJob();
+                eventLogPrintService.RegisterLogPrintService();
             }
         }
     }

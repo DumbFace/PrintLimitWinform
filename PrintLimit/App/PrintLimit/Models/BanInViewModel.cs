@@ -14,5 +14,9 @@ namespace PrintLimit.Models
         public int TongSoTrangDaIn { get; set; }
         public string PaperSize { get; set; }
         public string TenMayIn { get; set; }
+        public bool Duplex { get; set; }
+        public int Copies { get; set; }
+        public int TotalPagesPerDoc { get; set; }
+
     }
 }

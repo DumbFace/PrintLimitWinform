@@ -3,6 +3,7 @@ using PrintLimit.Services.RegisterEventServices;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
+using System.IO;
 using System.Linq;
 using System.Management;
 using System.Text;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace PrintLimit.Services.EventServices
 {
-    class RegisterEvent : IEventLogPrintService, IEventWMIService, IEventCreateSpooling
+    class RegisterEvent : IEventLogPrintService, IEventWMIService, IEventCreateSpooling, IEventPrintSpool
     {
         private readonly IJobService jobService;
 
@@ -19,12 +20,12 @@ namespace PrintLimit.Services.EventServices
             jobService = new JobService();
         }
 
-        public void CreateNewSpooling()
+        public void MonitorPrintJob()
         {
             // Tạo WMI query để theo dõi sự kiện thêm công việc in
             string queryString =
                 "SELECT * " +
-                "FROM __InstanceCreationEvent WITHIN 1 " +
+                "FROM __InstanceCreationEvent WITHIN 0.1 " +
                 "WHERE TargetInstance ISA 'Win32_PrintJob'";
 
             // Sử dụng WMI namespace 'CIMV2'
@@ -34,16 +35,36 @@ namespace PrintLimit.Services.EventServices
             ManagementEventWatcher watcher = new ManagementEventWatcher(scope, queryString);
 
             // Sự kiện xảy ra khi một công việc in mới được thêm vào hàng đợi
-            watcher.EventArrived += new EventArrivedEventHandler(this.jobService.CreateSpoolingJob);
+            watcher.EventArrived += new EventArrivedEventHandler(this.jobService.MonitorSpoolingJob);
 
             // Bắt đầu giám sát sự kiện
             watcher.Start();
         }
 
+        public void CreateSpoolPrint()
+        {
+            var watcher = new FileSystemWatcher();
+
+            watcher.Path = @"C:\Windows\System32\spool\PRINTERS";
+
+            // Watch for changes in LastAccess and LastWrite times, and the renaming of files or directories. 
+            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+               | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+
+            // Only watch text files.
+            watcher.Filter = "*.SPL";
+
+            // Add event handlers.
+            watcher.Changed += jobService.OnSpoolingCreated;
+
+            // Begin watching.
+            watcher.EnableRaisingEvents = true;
+        }
+
         public void RegisterLogPrintService()
         {
             string logType = "Microsoft-Windows-PrintService/Operational";
-            string query = "*[System[(EventID=805) or (EventID=307)]]";
+            string query = "*[System[(EventID=307)]]";
 
             EventLogQuery eventsQuery = new EventLogQuery(logType, PathType.LogName, query);
 
@@ -75,7 +96,6 @@ namespace PrintLimit.Services.EventServices
                 else
                     Scope = new ManagementScope(String.Format("\\\\{0}\\root\\CIMV2", ComputerName), null);
                 Scope.Connect();
-
 
                 string wqlQuery = @"Select * From __InstanceModificationEvent  Within 0.1
                 Where TargetInstance ISA 'Win32_PrintJob' And TargetInstance.JobStatus = 'Printing'";
