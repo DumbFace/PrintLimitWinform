@@ -86,7 +86,27 @@ namespace PrintLimit.Services.AnalysisSpoolServices
                                 XmlNode pageMediaSize = doc.SelectSingleNode("//psf:Feature[@name='psk:PageMediaSize']", GetNamespaceManager(doc));
                                 if (pageMediaSize != null)
                                 {
-                                    XmlNode paperSize = pageMediaSize.SelectSingleNode("//psf:Option", GetNamespaceManager(doc));
+                                    if (pageMediaSize.InnerXml.ToLower().Contains("a4"))
+                                    {
+                                        infoPrintJob.PaperSize = "A4 8.27\" x 11.69\"";
+                                    }
+                                    else if (pageMediaSize.InnerXml.ToLower().Contains("letter"))
+                                    {
+                                        infoPrintJob.PaperSize = "Letter 8.5\" x 11\"";
+                                    }
+                                    else if (pageMediaSize.InnerXml.ToLower().Contains("a5"))
+                                    {
+                                        infoPrintJob.PaperSize = "A5 5.83\" x 8.27\"";
+                                    }
+                                    else if (pageMediaSize.InnerXml.ToLower().Contains("legal"))
+                                    {
+                                        infoPrintJob.PaperSize = "Legal 8.5\" x 14\"";
+                                    }
+                                    else if (pageMediaSize.InnerXml.ToLower().Contains("executive"))
+                                    {
+                                        infoPrintJob.PaperSize = "Executive 7.25\" x 10.5\"";
+                                    }         
+                                    /*XmlNode paperSize = pageMediaSize.SelectSingleNode("//psf:Option", GetNamespaceManager(doc));
                                     if (paperSize != null)
                                     {
                                         XmlAttribute nameAttribute = paperSize.Attributes["name"];
@@ -115,7 +135,7 @@ namespace PrintLimit.Services.AnalysisSpoolServices
                                                 infoPrintJob.PaperSize = "Executive 7.25\" x 10.5\"";
                                             }
                                         }
-                                    }
+                                    }*/
                                 }
 
 
@@ -140,10 +160,24 @@ namespace PrintLimit.Services.AnalysisSpoolServices
         public int GetTotalPages(ZipArchive archive)
         {
             int totalPages = 0;
-            totalPages = archive.Entries.Where(entry =>
-                       entry.FullName.StartsWith("Documents/1/Pages/") &&
-                       entry.FullName.EndsWith(".fpage")
-                       ).Count();
+            int i = 1;
+
+            var entriesPages = archive.Entries.Where(
+                       entry =>
+                       entry.FullName.StartsWith("Documents/1/Pages/")
+                       );
+
+            foreach (var item in entriesPages)
+            {
+                if (item.FullName.Contains($"{i}.fpage"))
+                {
+                    totalPages++;
+                    i++;
+                }
+            }
+
+
+
             return totalPages;
         }
 

@@ -144,6 +144,7 @@ namespace PrintLimit.Services.JobServices
                         using (ZipArchive archive = ZipFile.OpenRead(filePath))
                         {
 
+                            serilogService.WriteLogHeader($"Đọc File {filePath}");
                             PrintJobModel printJobModel = analysisSpoolService.GetCopyDuplexPaperSize(archive);
                             printJobModel.TotalPages = analysisSpoolService.GetTotalPages(archive);
 
@@ -242,6 +243,9 @@ namespace PrintLimit.Services.JobServices
 
         public void OnSpoolingCreated(object source, FileSystemEventArgs e)
         {
+
+            serilogService.WriteLogHeader("Sự kiện tạo file spool");
+            Log.Information($"Đường dẫn file {e.FullPath}");
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string vinaAiPath = Path.Combine(appDataPath, "VinaAi\\");
 
@@ -250,15 +254,21 @@ namespace PrintLimit.Services.JobServices
             {
                 Directory.CreateDirectory(vinaAiPath);
             }
+            string numberAsString = e.Name.Split('.')[0];
 
-            try
+            if (int.TryParse(numberAsString, out _))
             {
-                byte[] fileBytes = File.ReadAllBytes(e.FullPath);
-                File.WriteAllBytes(vinaAiPath + Path.GetFileName(e.FullPath), fileBytes);
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Có lỗi xảy trong trong quá trình copy files SPL: " + ex.Message);
+                try
+                {
+                    byte[] fileBytes = File.ReadAllBytes(e.FullPath);
+                    File.WriteAllBytes(vinaAiPath + Path.GetFileName(e.FullPath), fileBytes);
+                    Log.Information($"File đã ghi vào app {e.FullPath}");
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Có lỗi xảy trong trong quá trình copy files SPL: {ex.Message}");
+                    Log.Error($"Đường dẫn file {e.FullPath}");
+                }
             }
         }
     }
