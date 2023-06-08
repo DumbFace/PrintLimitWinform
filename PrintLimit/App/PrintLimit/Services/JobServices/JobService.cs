@@ -122,7 +122,7 @@ namespace PrintLimit.Services.JobServices
                         foreach (var node in renderJobDiagNodes)
                         {
                             jobID = node.Element(ns + "Param1").Value;
-                            tenMayIn = node.Element(ns + "Param5").Value;
+                            //tenMayIn = node.Element(ns + "Param5").Value;
                         }
 
                         Singleton singleton = Singleton.GetInstance();
@@ -132,13 +132,8 @@ namespace PrintLimit.Services.JobServices
                         {
                             banInViewModel = new BanInViewModel();
                             banInViewModel.Document = "Null";
-                            banInViewModel.TenMayIn = tenMayIn;
+                            banInViewModel.TenMayIn = "Null";
                         }
-                        else
-                        {
-                            banInViewModel.TenMayIn = tenMayIn;
-                        }
-
 
                         string filePath = vinaAiPath + $"{jobID.PadLeft(5, '0')}.SPL";
                         using (ZipArchive archive = ZipFile.OpenRead(filePath))
