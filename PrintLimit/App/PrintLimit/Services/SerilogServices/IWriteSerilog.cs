@@ -12,5 +12,6 @@ namespace PrintLimit.Services.SerilogServices
         void WriteLogHeader(string name);
         void BreakDownLine();
         void WriteBlockLog(string header = "",List<KeyValuePair<string,string>> lst = null);
+        void PrintProperties<T>(string name,T obj);
     }
 }

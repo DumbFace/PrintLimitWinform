@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Management.Automation;
-using System.Collections.ObjectModel;
 
 namespace PrintLimit.Services.ConfigurateServices
 {

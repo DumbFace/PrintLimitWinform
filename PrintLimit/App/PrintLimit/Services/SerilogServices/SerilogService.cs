@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,8 +16,8 @@ namespace PrintLimit.Services.SerilogServices
         public SerilogService()
         {
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string vinaAiPath = Path.Combine(appDataPath, "VinaAi\\Logs\\");
-
+            string vinaAiPath = appDataPath + "VinaAi\\Logs\\";
+            //string vinaAiPath = "C:\\";
 
             // Kiểm tra xem thư mục VinaAi có tồn tại không, nếu không thì tạo mới
             if (!Directory.Exists(vinaAiPath))
@@ -25,10 +26,10 @@ namespace PrintLimit.Services.SerilogServices
             }
 
             Log.Logger = new LoggerConfiguration()
-                  .MinimumLevel.Debug()
-                  .WriteTo.Console()
-                  .WriteTo.File(vinaAiPath, rollingInterval: RollingInterval.Day)
+                  .MinimumLevel.Information()
+                  .WriteTo.File(Environment.GetEnvironmentVariable("APPDATA") + "/serilog/logs/", rollingInterval: RollingInterval.Day)
                   .CreateLogger();
+
         }
 
         public void WriteLogHeader(string name)
@@ -54,6 +55,19 @@ namespace PrintLimit.Services.SerilogServices
                 Log.Information($"{item.Key}: {item.Value}");
             }
             Log.Information($"\n\n");
+        }
+
+        public void PrintProperties<T>(string name, T obj)
+        {
+            WriteLogHeader(name);
+
+            Type type = typeof(T);
+            PropertyInfo[] properties = type.GetProperties();
+
+            foreach (var property in properties)
+            {
+                Log.Information($"{property.Name}: {property.GetValue(obj)}");
+            }
         }
     }
 }

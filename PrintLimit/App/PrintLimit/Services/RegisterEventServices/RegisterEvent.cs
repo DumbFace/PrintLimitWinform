@@ -1,5 +1,6 @@
 ﻿using PrintLimit.Services.JobServices;
 using PrintLimit.Services.RegisterEventServices;
+using PrintLimit.Services.SerilogServices;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -14,65 +15,95 @@ namespace PrintLimit.Services.EventServices
     class RegisterEvent : IEventLogPrintService, IEventWMIService, IEventCreateSpooling, IEventPrintSpool
     {
         private readonly IJobService jobService;
-
+        private readonly IWriteSerilog writeSerilog;
         public RegisterEvent()
         {
             jobService = new JobService();
+            writeSerilog = new SerilogService();
         }
 
         public void MonitorPrintJob()
         {
-            // Tạo WMI query để theo dõi sự kiện thêm công việc in
-            string queryString =
-                "SELECT * " +
-                "FROM __InstanceCreationEvent WITHIN 0.1 " +
-                "WHERE TargetInstance ISA 'Win32_PrintJob'";
+            try
+            {
+                // Tạo WMI query để theo dõi sự kiện thêm công việc in
+                string queryString =
+                    "SELECT * " +
+                    "FROM __InstanceCreationEvent WITHIN 0.1 " +
+                    "WHERE TargetInstance ISA 'Win32_PrintJob'";
 
-            // Sử dụng WMI namespace 'CIMV2'
-            string scope = @"\\localhost\root\CIMV2";
+                // Sử dụng WMI namespace 'CIMV2'
+                string scope = @"\\localhost\root\CIMV2";
 
-            // Tạo event watcher và gán các sự kiện
-            ManagementEventWatcher watcher = new ManagementEventWatcher(scope, queryString);
+                // Tạo event watcher và gán các sự kiện
+                ManagementEventWatcher watcher = new ManagementEventWatcher(scope, queryString);
 
-            // Sự kiện xảy ra khi một công việc in mới được thêm vào hàng đợi
-            watcher.EventArrived += new EventArrivedEventHandler(this.jobService.MonitorSpoolingJob);
+                // Sự kiện xảy ra khi một công việc in mới được thêm vào hàng đợi
+                watcher.EventArrived += new EventArrivedEventHandler(this.jobService.MonitorSpoolingJob);
 
-            // Bắt đầu giám sát sự kiện
-            watcher.Start();
+                // Bắt đầu giám sát sự kiện
+                watcher.Start();
+
+                writeSerilog.WriteLogInfo("Monitor Print Job", "Success!");
+            }
+            catch (Exception ex)
+            {
+                writeSerilog.WriteLogInfo("Monitor Print Job", "Failed!");
+            }
+
         }
 
         public void CreateSpoolPrint()
         {
-            var watcher = new FileSystemWatcher();
 
-            watcher.Path = @"C:\Windows\System32\spool\PRINTERS";
+            try
+            {
+                var watcher = new FileSystemWatcher();
 
-            // Watch for changes in LastAccess and LastWrite times, and the renaming of files or directories. 
-            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-               | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+                watcher.Path = @"C:\Windows\System32\spool\PRINTERS";
 
-            // Only watch text files.
-            watcher.Filter = "*.SPL";
+                // Watch for changes in LastAccess and LastWrite times, and the renaming of files or directories. 
+                watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+                   | NotifyFilters.FileName | NotifyFilters.DirectoryName;
 
-            // Add event handlers.
-            watcher.Changed += jobService.OnSpoolingCreated;
+                // Only watch text files.
+                watcher.Filter = "*.SPL";
 
-            // Begin watching.
-            watcher.EnableRaisingEvents = true;
+                // Add event handlers.
+                watcher.Changed += jobService.OnSpoolingCreated;
+
+                // Begin watching.
+                watcher.EnableRaisingEvents = true;
+
+                writeSerilog.WriteLogInfo("Monitor file SPL", "Success!");
+            }
+            catch (Exception ex)
+            {
+                writeSerilog.WriteLogInfo("Monitor file SPL", "Failed!");
+            }
+
         }
 
         public void RegisterLogPrintService()
         {
-            string logType = "Microsoft-Windows-PrintService/Operational";
-            string query = "*[System[(EventID=307)]]";
+            try
+            {
+                string logType = "Microsoft-Windows-PrintService/Operational";
+                string query = "*[System[(EventID=307)]]";
 
-            EventLogQuery eventsQuery = new EventLogQuery(logType, PathType.LogName, query);
+                EventLogQuery eventsQuery = new EventLogQuery(logType, PathType.LogName, query);
 
-            EventLogWatcher logWatcher = new EventLogWatcher(eventsQuery);
+                EventLogWatcher logWatcher = new EventLogWatcher(eventsQuery);
 
-            logWatcher.EventRecordWritten += new EventHandler<EventRecordWrittenEventArgs>(this.jobService.LogPrintServiceJob);
+                logWatcher.EventRecordWritten += new EventHandler<EventRecordWrittenEventArgs>(this.jobService.LogPrintServiceJob);
 
-            logWatcher.Enabled = true;
+                logWatcher.Enabled = true;
+                writeSerilog.WriteLogInfo("Monitor Event Viewer ID 805", "Success!");
+            }
+            catch (Exception ex)
+            {
+                writeSerilog.WriteLogInfo("Monitor Event Viewer ID 805", "Failed!");
+            }
         }
 
         public void RegisterPrintJob()

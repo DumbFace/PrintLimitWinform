@@ -68,22 +68,14 @@ namespace PrintLimit.Services.JobServices
                 nV_BanIn.PaperSize = paperSize;
                 nV_BanIn.TenMayIn = name;
 
-                serilogService.WriteBlockLog("Lấy thông tin bản in", new List<KeyValuePair<string, string>>()
-                        {
-                            new KeyValuePair<string, string>("ID", nV_BanIn.PrintJob.ToString()),
-                            new KeyValuePair<string, string>("Tên tài liệu", nV_BanIn.Document.ToString()),
-                            new KeyValuePair<string, string>("Khổ giấy", nV_BanIn.PaperSize.ToString()),
-                            new KeyValuePair<string, string>("Tên máy in", nV_BanIn.TenMayIn.ToString()),
-                        });
 
                 singleton.ListSpooling.Add(nV_BanIn);
-                serilogService.WriteLogHeader("Thêm bản In vào list static");
-                serilogService.WriteLogInfo("Bản In ID", nV_BanIn.PrintJob);
 
+                serilogService.PrintProperties("Bản in từ Print Monitor", nV_BanIn);
             }
             catch (Exception ex)
             {
-                Log.Error($"Có lỗi xảy ra trong quá trình lấy ID, tên tài liệu, khổ giấy, tên máy in: {ex.Message}");
+                Log.Error($"Có lỗi xảy ra trong quá trình win32 monitor print job: {ex.Message}");
             }
 
         }
@@ -139,17 +131,11 @@ namespace PrintLimit.Services.JobServices
                         using (ZipArchive archive = ZipFile.OpenRead(filePath))
                         {
 
-                            serilogService.WriteLogHeader($"Đọc File {filePath}");
+                            serilogService.WriteLogInfo($"Đọc File", filePath);
                             PrintJobModel printJobModel = analysisSpoolService.GetCopyDuplexPaperSize(archive);
                             printJobModel.TotalPages = analysisSpoolService.GetTotalPages(archive);
 
-                            serilogService.WriteBlockLog("Analysis", new List<KeyValuePair<string, string>>()
-                            {
-                                new KeyValuePair<string, string>("TotalPages", printJobModel.TotalPages.ToString()),
-                                new KeyValuePair<string, string>("Copies", printJobModel.Copies.ToString()),
-                                new KeyValuePair<string, string>("Duplex", printJobModel.Duplex.ToString()),
-                                new KeyValuePair<string, string>("PaperSize", printJobModel.PaperSize.ToString()),
-                            });
+                            serilogService.PrintProperties("Analysis", printJobModel);
 
                             banInViewModel.Duplex = printJobModel.Duplex;
                             banInViewModel.Copies = printJobModel.Copies;
@@ -202,6 +188,8 @@ namespace PrintLimit.Services.JobServices
                                     context.SaveChanges();
 
                                     singleton.ListSpooling.Remove(banInViewModel);
+
+                                    serilogService.PrintProperties("Thêm bản in thành công", banIn);
                                 }
                             }
                         }
@@ -239,8 +227,7 @@ namespace PrintLimit.Services.JobServices
         public void OnSpoolingCreated(object source, FileSystemEventArgs e)
         {
 
-            serilogService.WriteLogHeader("Sự kiện tạo file spool");
-            Log.Information($"Đường dẫn file {e.FullPath}");
+            serilogService.WriteLogHeader("Giám sát sự kiện SPL file");
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string vinaAiPath = Path.Combine(appDataPath, "VinaAi\\");
 

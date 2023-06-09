@@ -1,103 +1,38 @@
-﻿using IWshRuntimeLibrary;
-using Microsoft.Win32;
-using PrintLimit.Services.ConfigurateServices;
-using PrintLimit.Services.DALServices;
-using PrintLimit.Services.EventServices;
-using PrintLimit.Services.EventWatcherServices;
-using PrintLimit.Services.RegisterEventServices;
-using PrintLimit.Services.WMIServices;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using PrintLimit.Services.WindowServices;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace PrintLimit
 {
-    public class MyBackgroundApp : Form
+    public class Program
     {
-        private readonly IWMIService wMIService;
-        private readonly IEventWatcherService eventWatcherService;
-        private readonly IDALService dALService;
-        private readonly IConfigurateService configurateService;
-        private readonly IEventLogPrintService eventLogPrintService;
-        private readonly IEventWMIService eventWMIService;
-        private readonly IEventCreateSpooling eventCreateSpooling;
-        private readonly IEventPrintSpool eventPrintSpool;
-        //private readonly IWMIService wMIService;
-
-        //private 
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+        private readonly IWindowService windowService;
+        public Program()
         {
-            Application.Run(new MyBackgroundApp());
+            windowService = new WindowService(); 
         }
 
-        public MyBackgroundApp()
+        static void Main(string[] args)
         {
-            //Dependencies
-            wMIService = new WMIService();
-            eventWatcherService = new EventWatcherService(wMIService);
-            dALService = new DALService();
-            configurateService = new ConfigurateService();
-            eventWMIService = new RegisterEvent();
-            eventLogPrintService = new RegisterEvent();
-            eventPrintSpool = new RegisterEvent();
-            eventCreateSpooling = new RegisterEvent();
-            eventPrintSpool = new RegisterEvent();
-            // Đặt form ở chế độ không hiển thị
-            this.WindowState = FormWindowState.Minimized;
-            this.ShowInTaskbar = false;
-            // Bắt đầu công việc nền
-            if (!configurateService.PreventMultipleThreadStart())
-            {
-                //configurateService.CopyShortcutToStartup();
-                //configurateService.RegisterForceSetCopyCount();
-                configurateService.EnableLogPrintService();
+            var program = new Program();
+            ////Debug 
+            IHost host = Host.CreateDefaultBuilder(args)
+                 .UseWindowsService()
+                .ConfigureServices(services =>
+                {
+                    services.AddHostedService<MyBackgroundApp>();
+                })
+                .Build();
+            host.Run();
 
-                Thread workerThread = new Thread(DoWork);
-                workerThread.Start();
-            }
-            else
-            {
-                MessageBox.Show("Ứng dụng đang chạy");
-                Application.Exit();
-                Environment.Exit(0);
-            }
-        }
-
-        public void DoWork()
-        {
-            string ip4Address = "";
-            ip4Address = wMIService.GetIP();
-
-            if (dALService.CheckEmployeeViaIP(ip4Address) != null)
-            {
-
-                //Copy spool file vào appdata
-                eventPrintSpool.CreateSpoolPrint();
-
-                //Giám sát in lấy thông tin tên file, loại giấy...
-                eventWMIService.MonitorPrintJob();
-
-                //Giám sám in trong window event nếu có sự kiện in thì lưu vào db
-                eventLogPrintService.RegisterLogPrintService();
-            }
-            else
-            {
-                MessageBox.Show("Bạn vui lòng tạo địa chỉ IP trên danh mục máy tính để thống kê in ấn");
-                eventPrintSpool.CreateSpoolPrint();
-                eventWMIService.MonitorPrintJob();
-                eventLogPrintService.RegisterLogPrintService();
-            }
+            //Run product
+            //program.windowService.CreateService();
+            //program.windowService.StartService();
         }
     }
-
 }
