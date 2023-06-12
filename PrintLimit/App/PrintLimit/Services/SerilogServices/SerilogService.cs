@@ -15,20 +15,24 @@ namespace PrintLimit.Services.SerilogServices
     {
         public SerilogService()
         {
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string vinaAiPath = appDataPath + "VinaAi\\Logs\\";
-            //string vinaAiPath = "C:\\";
+            //Code không thể chạy trong môi trường BackgroundService
+            //string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            //string vinaAiPath = appDataPath + "VinaAi\\Logs\\";
+            ////string vinaAiPath = "C:\\";
 
-            // Kiểm tra xem thư mục VinaAi có tồn tại không, nếu không thì tạo mới
-            if (!Directory.Exists(vinaAiPath))
-            {
-                Directory.CreateDirectory(vinaAiPath);
-            }
+            //// Kiểm tra xem thư mục VinaAi có tồn tại không, nếu không thì tạo mới
+            //if (!Directory.Exists(vinaAiPath))
+            //{
+            //    Directory.CreateDirectory(vinaAiPath);
+            //}
 
-            Log.Logger = new LoggerConfiguration()
-                  .MinimumLevel.Information()
-                  .WriteTo.File(Environment.GetEnvironmentVariable("APPDATA") + "/serilog/logs/", rollingInterval: RollingInterval.Day)
-                  .CreateLogger();
+            //Log.Logger = new LoggerConfiguration()
+            //   .MinimumLevel.Debug()
+            //   .MinimumLevel.Override("microsoft", Serilog.Events.LogEventLevel.Warning)
+            //   .Enrich.FromLogContext()
+            //   //.WriteTo.File(Environment.GetEnvironmentVariable("APPDATA") + "/serilog/logs/", rollingInterval: RollingInterval.Day)
+            //   .WriteTo.File("C:\\test.txt")
+            //   .CreateLogger();
 
         }
 

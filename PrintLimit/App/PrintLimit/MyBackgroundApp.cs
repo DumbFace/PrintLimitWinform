@@ -6,13 +6,10 @@ using PrintLimit.Services.DALServices;
 using PrintLimit.Services.EventServices;
 using PrintLimit.Services.EventWatcherServices;
 using PrintLimit.Services.RegisterEventServices;
+using PrintLimit.Services.SerilogServices;
 using PrintLimit.Services.WMIServices;
+using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -29,17 +26,7 @@ namespace PrintLimit
         private readonly IEventWMIService eventWMIService;
         private readonly IEventCreateSpooling eventCreateSpooling;
         private readonly IEventPrintSpool eventPrintSpool;
-        //private readonly IWMIService wMIService;
-
-        //private 
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        //[STAThread]
-        //static void Main()
-        //{
-        //    Application.Run(new MyBackgroundApp());
-        //}
+        private readonly IWriteSerilog _logger;
 
         public MyBackgroundApp()
         {
@@ -53,6 +40,7 @@ namespace PrintLimit
             eventPrintSpool = new RegisterEvent();
             eventCreateSpooling = new RegisterEvent();
             eventPrintSpool = new RegisterEvent();
+            _logger = new SerilogService();
         }
 
         public void DoWork()
@@ -79,10 +67,47 @@ namespace PrintLimit
                 eventLogPrintService.RegisterLogPrintService();
             }
         }
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            DoWork();
-            return Task.CompletedTask;
+            if (!configurateService.PreventMultipleThreadStart())
+            {
+                try
+                {
+
+                    Log.Logger = new LoggerConfiguration()
+                       .MinimumLevel.Debug()
+                       .MinimumLevel.Override("microsoft", Serilog.Events.LogEventLevel.Warning)
+                       .Enrich.FromLogContext()
+                       .WriteTo.File("C:/log/", rollingInterval: RollingInterval.Day)
+                       .CreateLogger();
+
+                    DoWork();
+                }
+                catch (Exception ex)
+                {
+                    _logger.WriteLogHeader("Error");
+                    Log.Error(ex.Message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Giám sát máy in đang hoạt động");
+                Application.Exit();
+                Environment.Exit(0);
+            }
+
+        }
+
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            _logger.WriteLogInfo("Service", "Started!");
+            return base.StartAsync(cancellationToken);
+        }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.WriteLogInfo("Service", "Stopped!");
+            return base.StopAsync(cancellationToken);
         }
     }
 

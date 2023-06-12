@@ -34,17 +34,8 @@ namespace PrintLimit.Services.WindowServices
                     CreateNoWindow = true,
                 }
             };
-            writeSerilog.PrintProperties("Tạo Service", process.StartInfo);
+            Log.Information("Tạo Service", process.StartInfo);
             bool result = process.Start();
-            if (result)
-            {
-                Log.Information("Tạo service thành công!");
-            } 
-            else
-            {
-                Log.Information("Tạo service không thành công!");
-            }
-
         }
 
         public void StartService()
@@ -61,17 +52,9 @@ namespace PrintLimit.Services.WindowServices
                     CreateNoWindow = true,
                 }
             };
-            writeSerilog.PrintProperties("Chạy Service", process.StartInfo);
+            Log.Information("Chạy Service", process.StartInfo);
             bool result = process.Start();
 
-            if (result)
-            {
-                Log.Information("Chạy service thành công!");
-            }
-            else
-            {
-                Log.Information("Chạy service không thành công!");
-            }
         }
     }
 }

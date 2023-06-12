@@ -1,11 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PrintLimit.Services.WindowServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Serilog;
 
 namespace PrintLimit
 {
@@ -14,7 +10,7 @@ namespace PrintLimit
         private readonly IWindowService windowService;
         public Program()
         {
-            windowService = new WindowService(); 
+            windowService = new WindowService();
         }
 
         static void Main(string[] args)
@@ -27,12 +23,16 @@ namespace PrintLimit
                 {
                     services.AddHostedService<MyBackgroundApp>();
                 })
+                .UseSerilog()
                 .Build();
+
+            //Register Background Service
+            program.windowService.CreateService();
+            program.windowService.StartService();
+
             host.Run();
 
-            //Run product
-            //program.windowService.CreateService();
-            //program.windowService.StartService();
+
         }
     }
 }

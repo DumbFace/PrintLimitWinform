@@ -1,0 +1,8 @@
+D:\Repo\Github\PrintLimitWinform\PrintLimit\RegiserServicePrintLimit\bin\Debug\RegiserServicePrintLimit.exe.config
+D:\Repo\Github\PrintLimitWinform\PrintLimit\RegiserServicePrintLimit\bin\Debug\RegiserServicePrintLimit.exe
+D:\Repo\Github\PrintLimitWinform\PrintLimit\RegiserServicePrintLimit\bin\Debug\RegiserServicePrintLimit.pdb
+D:\Repo\Github\PrintLimitWinform\PrintLimit\RegiserServicePrintLimit\obj\Debug\RegiserServicePrintLimit.csproj.AssemblyReference.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\RegiserServicePrintLimit\obj\Debug\RegiserServicePrintLimit.csproj.SuggestedBindingRedirects.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\RegiserServicePrintLimit\obj\Debug\RegiserServicePrintLimit.csproj.CoreCompileInputs.cache
+D:\Repo\Github\PrintLimitWinform\PrintLimit\RegiserServicePrintLimit\obj\Debug\RegiserServicePrintLimit.exe
+D:\Repo\Github\PrintLimitWinform\PrintLimit\RegiserServicePrintLimit\obj\Debug\RegiserServicePrintLimit.pdb
