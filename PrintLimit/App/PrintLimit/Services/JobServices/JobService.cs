@@ -75,7 +75,7 @@ namespace PrintLimit.Services.JobServices
             }
             catch (Exception ex)
             {
-                Log.Error($"Có lỗi xảy ra trong quá trình win32 monitor print job: {ex.Message}");
+                Log.Error($"Có lỗi xảy ra trong quá trình giám sát win32 print job: {ex.Message}");
             }
 
         }
@@ -111,9 +111,13 @@ namespace PrintLimit.Services.JobServices
                         var renderJobDiagNodes = doc.Descendants(ns + "DocumentPrinted");
                         string jobID = "";
                         string tenMayIn = "";
+                        string userEventViewer = "";
+                        string guestIP = "";
                         foreach (var node in renderJobDiagNodes)
                         {
                             jobID = node.Element(ns + "Param1").Value;
+                            userEventViewer = node.Element(ns + "Param3").Value;
+                            guestIP = node.Element(ns + "Param4").Value.Replace("\\", "");
                             //tenMayIn = node.Element(ns + "Param5").Value;
                         }
 
@@ -174,15 +178,13 @@ namespace PrintLimit.Services.JobServices
                                     var queryNV = context.DM_NhanVien.AsQueryable();
                                     var queryBanIn = context.NV_BanIn.AsQueryable();
 
-                                    //Tìm kiếm nhân viên trong cache, có thì lấy địa chỉ IP, không thì truy vấn dưới DB.
-                                    var nhanVien = cachingService.GetFromCache<DM_NhanVien>(ID_NHAN_VIEN);
-                                    if (nhanVien == null)
-                                    {
-                                        nhanVien = queryNV.Where(_ => _.Bios_MayTinh == ip).FirstOrDefault();
-                                        cachingService.AddToCache(ID_NHAN_VIEN, nhanVien, DateTimeOffset.UtcNow.AddHours(1));
-                                    }
-                                    //Lấy ID nhân viên
-                                    banIn.ID_NhanVien = nhanVien?.ID_NhanVien;
+                                    //User đăng nhập hiện tại
+                                    string currentUser = Environment.UserName;
+
+                                    //Nếu user đăng nhập hiện tại khác với user trong event viewer sẽ lấy IP của máy trạm ngược lại thì máy share.
+                                    ip = currentUser == userEventViewer ? ip : guestIP;
+
+                                    banIn.ID_NhanVien = queryNV.Where(_ => _.Bios_MayTinh == ip).FirstOrDefault().ID_NhanVien;
 
                                     context.NV_BanIn.Add(banIn);
                                     context.SaveChanges();
@@ -190,6 +192,7 @@ namespace PrintLimit.Services.JobServices
                                     singleton.ListSpooling.Remove(banInViewModel);
 
                                     serilogService.PrintProperties("Thêm bản in thành công", banIn);
+                                    serilogService.WriteLogInfo("IP Máy tính", ip);
                                 }
                             }
                         }
@@ -200,7 +203,7 @@ namespace PrintLimit.Services.JobServices
                     }
                     catch (Exception ex)
                     {
-                        Log.Error($"Có lỗi trong quá trình thêm dữ liệu vào db {ex.Message}");
+                        Log.Error($"Có lỗi trong quá trình thêm dữ liệu vào DB: {ex.Message}");
                     }
                 }
             }
@@ -244,7 +247,7 @@ namespace PrintLimit.Services.JobServices
                 {
                     byte[] fileBytes = File.ReadAllBytes(e.FullPath);
                     File.WriteAllBytes(vinaAiPath + Path.GetFileName(e.FullPath), fileBytes);
-                    Log.Information($"File đã ghi vào app {e.FullPath}");
+                    Log.Information($"File đã ghi vào app {vinaAiPath + Path.GetFileName(e.FullPath)}");
                 }
                 catch (Exception ex)
                 {

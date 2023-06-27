@@ -44,11 +44,11 @@ namespace PrintLimit.Services.EventServices
                 // Bắt đầu giám sát sự kiện
                 watcher.Start();
 
-                writeSerilog.WriteLogInfo("Monitor Print Job", "Success!");
+                writeSerilog.WriteLogInfo("Giám sát sự kiện in win32", "Thành công!");
             }
             catch (Exception ex)
             {
-                writeSerilog.WriteLogInfo("Monitor Print Job", "Failed!");
+                writeSerilog.WriteLogInfo("Giám sát sự kiện in win32", "Thất bại!");
             }
 
         }
@@ -75,11 +75,11 @@ namespace PrintLimit.Services.EventServices
                 // Begin watching.
                 watcher.EnableRaisingEvents = true;
 
-                writeSerilog.WriteLogInfo("Monitor file SPL", "Success!");
+                writeSerilog.WriteLogInfo("Giám sát sự kiện print spool", "Thành công!");
             }
             catch (Exception ex)
             {
-                writeSerilog.WriteLogInfo("Monitor file SPL", "Failed!");
+                writeSerilog.WriteLogInfo("Giám sát sự kiện print spool", "Thất bại!");
             }
 
         }
@@ -98,11 +98,11 @@ namespace PrintLimit.Services.EventServices
                 logWatcher.EventRecordWritten += new EventHandler<EventRecordWrittenEventArgs>(this.jobService.LogPrintServiceJob);
 
                 logWatcher.Enabled = true;
-                writeSerilog.WriteLogInfo("Monitor Event Viewer ID 805", "Success!");
+                writeSerilog.WriteLogInfo("Giám sát sự kiện in Event Viewer", "Thành công!");
             }
             catch (Exception ex)
             {
-                writeSerilog.WriteLogInfo("Monitor Event Viewer ID 805", "Failed!");
+                writeSerilog.WriteLogInfo("Giám sát sự kiện in Event Viewer", "Thất bại!");
             }
         }
 

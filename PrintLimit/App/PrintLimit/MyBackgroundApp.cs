@@ -41,6 +41,17 @@ namespace PrintLimit
             eventCreateSpooling = new RegisterEvent();
             eventPrintSpool = new RegisterEvent();
             _logger = new SerilogService();
+
+            //Khởi tạo serilog
+            if (!configurateService.PreventMultipleThreadStart())
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Debug()
+                    .MinimumLevel.Override("microsoft", Serilog.Events.LogEventLevel.Warning)
+                    .Enrich.FromLogContext()
+                    .WriteTo.File("C:/log/", rollingInterval: RollingInterval.Day)
+                    .CreateLogger();
+            }
         }
 
         public void DoWork()
@@ -73,14 +84,6 @@ namespace PrintLimit
             {
                 try
                 {
-
-                    Log.Logger = new LoggerConfiguration()
-                       .MinimumLevel.Debug()
-                       .MinimumLevel.Override("microsoft", Serilog.Events.LogEventLevel.Warning)
-                       .Enrich.FromLogContext()
-                       .WriteTo.File("C:/log/", rollingInterval: RollingInterval.Day)
-                       .CreateLogger();
-
                     DoWork();
                 }
                 catch (Exception ex)
@@ -100,6 +103,7 @@ namespace PrintLimit
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
+
             _logger.WriteLogInfo("Service", "Started!");
             return base.StartAsync(cancellationToken);
         }

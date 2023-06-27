@@ -16,7 +16,6 @@ namespace RegiserServicePrintLimit
 
         static void Main(string[] args)
         {
-            //MessageBox.Show("Services has registed!!!!!");
             CreateService();
             StartService();
         }
@@ -36,7 +35,6 @@ namespace RegiserServicePrintLimit
                     CreateNoWindow = true,
                 }
             };
-            //Log.Information("Tạo Service", process.StartInfo);
             bool result = process.Start();
         }
 
@@ -54,7 +52,6 @@ namespace RegiserServicePrintLimit
                     CreateNoWindow = true,
                 }
             };
-            //Log.Information("Chạy Service", process.StartInfo);
             bool result = process.Start();
         }
     }
