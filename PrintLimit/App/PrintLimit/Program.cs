@@ -26,12 +26,6 @@ namespace PrintLimit
                 .UseSerilog()
                 .Build();
 
-
-
-            //Register Background Service
-            //program.windowService.CreateService();
-            //program.windowService.StartService();
-
             host.Run();
 
 

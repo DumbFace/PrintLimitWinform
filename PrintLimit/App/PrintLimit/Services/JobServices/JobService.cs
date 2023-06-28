@@ -68,10 +68,9 @@ namespace PrintLimit.Services.JobServices
                 nV_BanIn.PaperSize = paperSize;
                 nV_BanIn.TenMayIn = name;
 
-
                 singleton.ListSpooling.Add(nV_BanIn);
 
-                serilogService.PrintProperties("Bản in từ Print Monitor", nV_BanIn);
+                serilogService.PrintProperties("Bản in từ Print win32", nV_BanIn);
             }
             catch (Exception ex)
             {
@@ -85,23 +84,41 @@ namespace PrintLimit.Services.JobServices
             string Ip4Address = "";
             ManagementObjectSearcher NetworkSearcher = new ManagementObjectSearcher("SELECT IPAddress FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
             ManagementObjectCollection collectNetWork = NetworkSearcher.Get();
-            foreach (ManagementObject obj in collectNetWork)
+            try
             {
-                string[] arrIPAddress = (string[])(obj["IPAddress"]);
-
-                return arrIPAddress[0];
+                foreach (ManagementObject obj in collectNetWork)
+                {
+                    string[] arrIPAddress = (string[])(obj["IPAddress"]);
+                    Log.Information($"Get IP: {arrIPAddress[0]}");
+                    return arrIPAddress[0];
+                }
             }
+            catch (Exception ex)
+            {
+                Log.Information($"Get IP Error: {ex.Message}");
+            }
+
             return Ip4Address;
         }
+
+
         public void LogPrintServiceJob(object sender, EventRecordWrittenEventArgs e)
         {
+            string pathDriveC = "C:/SPLFile/";
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string vinaAiPath = Path.Combine(appDataPath, "VinaAi\\");
+            Log.Information($"App Data Path: {appDataPath}");
+            Log.Information($"VinaAi Path: {vinaAiPath}");
 
             if (e.EventRecord != null)
             {
+                serilogService.WriteLogHeader("Sự kiện Event Viewer");
+                Log.Information($"Bắt sự kiện Event Viewer");
+
                 if (e.EventRecord.Id == 307)
                 {
+                    Log.Information($"Bắt sự kiện Printer 307");
+
                     try
                     {
                         string xml = e.EventRecord.ToXml();
@@ -118,10 +135,10 @@ namespace PrintLimit.Services.JobServices
                             jobID = node.Element(ns + "Param1").Value;
                             userEventViewer = node.Element(ns + "Param3").Value;
                             guestIP = node.Element(ns + "Param4").Value.Replace("\\", "");
-                            //tenMayIn = node.Element(ns + "Param5").Value;
                         }
 
                         Singleton singleton = Singleton.GetInstance();
+
                         BanInViewModel banInViewModel = singleton.ListSpooling.Where(_ => _.PrintJob == jobID).FirstOrDefault();
 
                         if (banInViewModel == null)
@@ -132,20 +149,29 @@ namespace PrintLimit.Services.JobServices
                         }
 
                         string filePath = vinaAiPath + $"{jobID.PadLeft(5, '0')}.SPL";
-                        using (ZipArchive archive = ZipFile.OpenRead(filePath))
+                        string filePathDriveC = pathDriveC + $"{jobID.PadLeft(5, '0')}.SPL";
+
+                        string path = File.Exists(filePath) ? filePath : filePathDriveC;
+                        try
                         {
+                            Log.Information($"Đọc file SPL từ đường dẫn {path}");
+                            using (ZipArchive archive = ZipFile.OpenRead(path))
+                            {
+                                PrintJobModel printJobModel = analysisSpoolService.GetCopyDuplexPaperSize(archive);
+                                printJobModel.TotalPages = analysisSpoolService.GetTotalPages(archive);
 
-                            serilogService.WriteLogInfo($"Đọc File", filePath);
-                            PrintJobModel printJobModel = analysisSpoolService.GetCopyDuplexPaperSize(archive);
-                            printJobModel.TotalPages = analysisSpoolService.GetTotalPages(archive);
-
-                            serilogService.PrintProperties("Analysis", printJobModel);
-
-                            banInViewModel.Duplex = printJobModel.Duplex;
-                            banInViewModel.Copies = printJobModel.Copies;
-                            banInViewModel.TotalPagesPerDoc = printJobModel.TotalPages;
-                            banInViewModel.PaperSize = printJobModel.PaperSize;
+                                serilogService.PrintProperties("Analysis SPL File", printJobModel);
+                                banInViewModel.Duplex = printJobModel.Duplex;
+                                banInViewModel.Copies = printJobModel.Copies;
+                                banInViewModel.TotalPagesPerDoc = printJobModel.TotalPages;
+                                banInViewModel.PaperSize = printJobModel.PaperSize;
+                            }
                         }
+                        catch (Exception ex)
+                        {
+                            Log.Information($"Đọc file SPL bị lỗi: {ex.Message}");
+                        }
+
 
                         NV_BanIn banIn = null;
                         if (banInViewModel != null)
@@ -162,6 +188,10 @@ namespace PrintLimit.Services.JobServices
                                 TenMayIn = banInViewModel.TenMayIn,
                                 TrangThaiText = "Đã In Thành Công",
                             };
+                        }
+                        else
+                        {
+                            Log.Error("Bản In View Model Null");
                         }
 
                         if (banIn != null)
@@ -206,6 +236,14 @@ namespace PrintLimit.Services.JobServices
                         Log.Error($"Có lỗi trong quá trình thêm dữ liệu vào DB: {ex.Message}");
                     }
                 }
+                else
+                {
+                    Log.Information($"Không có sự kiện 307");
+                }
+            }
+            else
+            {
+                Log.Information($"Không bắt được sự kiện Event Viewer");
             }
         }
 
@@ -230,14 +268,21 @@ namespace PrintLimit.Services.JobServices
         public void OnSpoolingCreated(object source, FileSystemEventArgs e)
         {
 
-            serilogService.WriteLogHeader("Giám sát sự kiện SPL file");
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string vinaAiPath = Path.Combine(appDataPath, "VinaAi\\");
+            serilogService.WriteLogHeader("Giám sát sự kiện lưu SPL file");
+            string appDriveCDataPath = "C:/SPLFile/";
+            string appLocalDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string localUserVinaAiPath = Path.Combine(appLocalDataPath, "VinaAi\\");
 
             // Kiểm tra xem thư mục VinaAi có tồn tại không, nếu không thì tạo mới
-            if (!Directory.Exists(vinaAiPath))
+            if (!Directory.Exists(localUserVinaAiPath))
             {
-                Directory.CreateDirectory(vinaAiPath);
+                Directory.CreateDirectory(localUserVinaAiPath);
+            }
+
+            //Tạo thư mục SPLFile trong ổ C: phòng trường hợp đường dẫn appLocalDataPath lấy sai
+            if (!Directory.Exists(appDriveCDataPath))
+            {
+                Directory.CreateDirectory(appDriveCDataPath);
             }
             string numberAsString = e.Name.Split('.')[0];
 
@@ -246,8 +291,12 @@ namespace PrintLimit.Services.JobServices
                 try
                 {
                     byte[] fileBytes = File.ReadAllBytes(e.FullPath);
-                    File.WriteAllBytes(vinaAiPath + Path.GetFileName(e.FullPath), fileBytes);
-                    Log.Information($"File đã ghi vào app {vinaAiPath + Path.GetFileName(e.FullPath)}");
+                    File.WriteAllBytes(localUserVinaAiPath + Path.GetFileName(e.FullPath), fileBytes);
+                    Log.Information($"Đường dẫn file đã ghi {localUserVinaAiPath + Path.GetFileName(e.FullPath)}");
+
+                    File.WriteAllBytes(appDriveCDataPath + Path.GetFileName(e.FullPath), fileBytes);
+                    Log.Information($"Đường dẫn file đã ghi {appDriveCDataPath + Path.GetFileName(e.FullPath)}");
+
                 }
                 catch (Exception ex)
                 {

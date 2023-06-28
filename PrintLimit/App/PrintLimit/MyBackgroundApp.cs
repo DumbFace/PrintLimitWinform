@@ -58,24 +58,22 @@ namespace PrintLimit
         {
             string ip4Address = "";
             ip4Address = wMIService.GetIP();
+            //Configurate Log Event Viewer
+            configurateService.EnableLogPrintService();
 
-            if (dALService.CheckEmployeeViaIP(ip4Address) != null)
-            {
-                //Copy spool file vào appdata
-                eventPrintSpool.CreateSpoolPrint();
+            //Copy spool file vào appdata
+            eventPrintSpool.CreateSpoolPrint();
 
-                //Giám sát in lấy thông tin tên file, loại giấy...
-                eventWMIService.MonitorPrintJob();
+            //Giám sát in lấy thông tin tên file, loại giấy...
+            eventWMIService.MonitorPrintJob();
 
-                //Giám sám in trong window event nếu có sự kiện in thì lưu vào db
-                eventLogPrintService.RegisterLogPrintService();
-            }
-            else
+            //Giám sám in trong window event nếu có sự kiện in thì lưu vào db
+            eventLogPrintService.RegisterLogPrintService();
+
+            if (dALService.CheckEmployeeViaIP(ip4Address) == null)
             {
                 MessageBox.Show("Bạn vui lòng tạo địa chỉ IP trên danh mục máy tính để thống kê in ấn");
-                eventPrintSpool.CreateSpoolPrint();
-                eventWMIService.MonitorPrintJob();
-                eventLogPrintService.RegisterLogPrintService();
+
             }
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

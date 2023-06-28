@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace PrintLimit
 {
+    //Single Design Pattern
     public sealed class Singleton
     {
         private static string _paperSize = "";

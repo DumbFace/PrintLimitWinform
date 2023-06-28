@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace PrintLimit.Structure
 {
+    //Cấu trúc DEVMODE của C++
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     public struct DEVMODE
     {

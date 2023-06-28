@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Management.Automation;
+using Serilog;
 
 namespace PrintLimit.Services.ConfigurateServices
 {
@@ -54,11 +55,12 @@ namespace PrintLimit.Services.ConfigurateServices
             };
             try
             {
-                Process.Start(startInfo);
+                var process = Process.Start(startInfo);
+                Log.Information("Enable Event Viewer");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Log.Information("Enable Event Viewer Error: " + ex.Message);
             }
             return result;
         }

@@ -1,0 +1,1 @@
+wevtutil set-log "Microsoft-Windows-PrintService/Operational" /enabled:true

@@ -106,36 +106,6 @@ namespace PrintLimit.Services.AnalysisSpoolServices
                                     {
                                         infoPrintJob.PaperSize = "Executive 7.25\" x 10.5\"";
                                     }         
-                                    /*XmlNode paperSize = pageMediaSize.SelectSingleNode("//psf:Option", GetNamespaceManager(doc));
-                                    if (paperSize != null)
-                                    {
-                                        XmlAttribute nameAttribute = paperSize.Attributes["name"];
-                                        if (nameAttribute != null)
-                                        {
-                                            string nameValue = nameAttribute.Value;
-                                            string namePaper = nameValue.Split(':')[1];
-                                            if (namePaper.Contains("Letter"))
-                                            {
-                                                infoPrintJob.PaperSize = "Letter 8.5\" x 11\"";
-                                            }
-                                            else if (namePaper.Contains("A4 8.27\" x 11.69\""))
-                                            {
-                                                infoPrintJob.PaperSize = "A4";
-                                            }
-                                            else if (namePaper.Contains("A5"))
-                                            {
-                                                infoPrintJob.PaperSize = "A5 5.83\" x 8.27\"";
-                                            }
-                                            else if (namePaper.Contains("Legal"))
-                                            {
-                                                infoPrintJob.PaperSize = "Legal 8.5\" x 14\"";
-                                            }
-                                            else if (namePaper.Contains("Executive"))
-                                            {
-                                                infoPrintJob.PaperSize = "Executive 7.25\" x 10.5\"";
-                                            }
-                                        }
-                                    }*/
                                 }
 
 
